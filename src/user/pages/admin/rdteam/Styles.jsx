@@ -1,5 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  useGetAllStylesQuery,
+  useArchiveStyleMutation,
+} from "../../../../api/RdAPI";
 import {
   showConfirm,
   showSuccess,
@@ -7,21 +11,11 @@ import {
   imgBaseURL,
   formatDate,
 } from "../../../../helper/Utility";
-import {
-  useGetAllStylesQuery,
-  useArchiveStyleMutation,
-} from "../../../../api/RdAPI";
-import ImgCom from "../../../../components/ImgCom";
 
 const ORIGIN_OPTIONS = [
   { value: "in_house", label: "In-House" },
   { value: "client_design", label: "Client Design" },
   { value: "market_sample", label: "Market Sample" },
-];
-
-const STATUS_OPTIONS = [
-  { value: "active", label: "Active" },
-  { value: "archived", label: "Archived" },
 ];
 
 const originBadge = (origin) => {
@@ -39,21 +33,26 @@ const Styles = () => {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("active");
   const [filterOrigin, setFilterOrigin] = useState("");
-  const [page, setPage] = useState(1);
-  const limit = 10;
 
+  // API filters — status & origin only (backend supported)
   const { data, isLoading, refetch } = useGetAllStylesQuery({
     status: filterStatus,
     origin: filterOrigin,
-    search,
-    page,
-    limit,
   });
   const [archiveStyle] = useArchiveStyleMutation();
 
-  const styles = data?.data || [];
-  const totalPages = data?.totalPages || 1;
-  const totalRecs = data?.totalRecords ?? 0;
+  const allStyles = data?.data || [];
+
+  // client-side search on name
+  const styles = useMemo(() => {
+    if (!search.trim()) return allStyles;
+    const q = search.toLowerCase();
+    return allStyles.filter(
+      (s) =>
+        s.style_name?.toLowerCase().includes(q) ||
+        s.metal_type?.toLowerCase().includes(q),
+    );
+  }, [allStyles, search]);
 
   const handleArchive = async (style) => {
     const confirm = await showConfirm(
@@ -103,26 +102,20 @@ const Styles = () => {
                 marginLeft: 8,
               }}
             >
-              ({totalRecs} total)
+              ({styles.length} total)
             </span>
           </div>
           <div className="table-filters">
             <input
               className="filter-inp"
-              placeholder="Search style name..."
+              placeholder="Search name, metal..."
               value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setPage(1);
-              }}
+              onChange={(e) => setSearch(e.target.value)}
             />
             <select
               className="filter-select"
               value={filterOrigin}
-              onChange={(e) => {
-                setFilterOrigin(e.target.value);
-                setPage(1);
-              }}
+              onChange={(e) => setFilterOrigin(e.target.value)}
             >
               <option value="">All Origins</option>
               {ORIGIN_OPTIONS.map((o) => (
@@ -134,17 +127,11 @@ const Styles = () => {
             <select
               className="filter-select"
               value={filterStatus}
-              onChange={(e) => {
-                setFilterStatus(e.target.value);
-                setPage(1);
-              }}
+              onChange={(e) => setFilterStatus(e.target.value)}
             >
               <option value="">All Statuses</option>
-              {STATUS_OPTIONS.map((s) => (
-                <option key={s.value} value={s.value}>
-                  {s.label}
-                </option>
-              ))}
+              <option value="active">Active</option>
+              <option value="archived">Archived</option>
             </select>
           </div>
         </div>
@@ -156,7 +143,7 @@ const Styles = () => {
               <th>Image</th>
               <th>Style Name</th>
               <th>Metal Type</th>
-              <th>Metal Wt.</th>
+              <th>Weight</th>
               <th>Plating</th>
               <th>Origin</th>
               <th>Status</th>
@@ -193,20 +180,34 @@ const Styles = () => {
               </tr>
             ) : (
               styles.map((style, idx) => {
+                const images = style.images
+                  ? typeof style.images === "string"
+                    ? JSON.parse(style.images)
+                    : style.images
+                  : [];
+                const thumb = images[0] ? `${imgBaseURL()}/${images[0]}` : null;
                 return (
                   <tr key={style.id}>
                     <td style={{ color: "var(--g500)", fontSize: 11 }}>
-                      {(page - 1) * limit + idx + 1}
+                      {idx + 1}
                     </td>
                     <td>
-                      <ImgCom img={style?.images?.[0]} />
+                      {thumb ? (
+                        <img
+                          src={thumb}
+                          alt={style.style_name}
+                          className="style-thumb"
+                        />
+                      ) : (
+                        <div className="style-thumb-empty">No img</div>
+                      )}
                     </td>
                     <td>
                       <div style={{ fontWeight: 500 }}>{style.style_name}</div>
                       {style.description && (
                         <div className="td-meta">
-                          {style.description.slice(0, 40)}
-                          {style.description.length > 40 ? "…" : ""}
+                          {style.description.slice(0, 45)}
+                          {style.description.length > 45 ? "…" : ""}
                         </div>
                       )}
                     </td>
@@ -239,12 +240,6 @@ const Styles = () => {
                         >
                           Edit
                         </button>
-                        <button
-                          className="btn-sm"
-                          onClick={() => navigate(`/styles/view/${style.id}`)}
-                        >
-                          View
-                        </button>
                         {style.status === "active" && (
                           <button
                             className="btn-sm-red"
@@ -262,36 +257,8 @@ const Styles = () => {
           </tbody>
         </table>
 
-        {/* PAGINATION */}
         <div className="pagination">
-          <div className="page-info">
-            Showing {styles.length} of {totalRecs} styles
-          </div>
-          <div className="page-btns">
-            <button
-              className="page-btn"
-              disabled={page === 1}
-              onClick={() => setPage((p) => p - 1)}
-            >
-              ← Prev
-            </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-              <button
-                key={p}
-                className={`page-btn ${p === page ? "active" : ""}`}
-                onClick={() => setPage(p)}
-              >
-                {p}
-              </button>
-            ))}
-            <button
-              className="page-btn"
-              disabled={page === totalPages}
-              onClick={() => setPage((p) => p + 1)}
-            >
-              Next →
-            </button>
-          </div>
+          <div className="page-info">Showing {styles.length} styles</div>
         </div>
       </div>
     </div>

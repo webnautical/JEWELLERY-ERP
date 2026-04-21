@@ -116,6 +116,9 @@ const StyleForm = () => {
   const imgRef = useRef();
   const cadRef = useRef();
 
+  const [removedImages, setRemovedImages] = useState([]);
+  const [removedCadFiles, setRemovedCadFiles] = useState([]);
+
   const { data: styleData, isLoading: fetching } = useGetStyleByIdQuery(id, {
     skip: !isEdit,
   });
@@ -154,9 +157,16 @@ const StyleForm = () => {
       }
       // existing cad files preview
       if (s.cad_files?.length) {
+        // setCadPreview(
+        //   s.cad_files.map((f) => ({
+        //     name: f.split("/").pop(),
+        //     isExisting: true,
+        //   })),
+        // );
         setCadPreview(
           s.cad_files.map((f) => ({
-            name: f.split("/").pop(),
+            name: typeof f === "string" ? f.split("/").pop() : f,
+            originalPath: f, // full DB path — sent back to backend for removal
             isExisting: true,
           })),
         );
@@ -240,10 +250,13 @@ const StyleForm = () => {
     e.target.value = "";
   };
 
+  // AFTER
   const removeImage = (idx) => {
     const item = imgPreview[idx];
-    if (!item.isExisting) {
-      // remove from new files too
+    if (item.isExisting) {
+      // track original path for removal — name holds the original DB path
+      setRemovedImages((p) => [...p, item.name]);
+    } else {
       const newIdx = imgPreview
         .slice(0, idx)
         .filter((i) => !i.isExisting).length;
@@ -265,7 +278,10 @@ const StyleForm = () => {
 
   const removeCad = (idx) => {
     const item = cadPreview[idx];
-    if (!item.isExisting) {
+    if (item.isExisting) {
+      // track original path for removal — name holds the original DB path
+      setRemovedCadFiles((p) => [...p, item.originalPath]);
+    } else {
       const newIdx = cadPreview
         .slice(0, idx)
         .filter((i) => !i.isExisting).length;
@@ -302,6 +318,10 @@ const StyleForm = () => {
       JSON.stringify(form.stoneDetails.filter((s) => s.type)),
     );
     fd.append("cadDimensions", JSON.stringify(form.cadDimensions));
+    if (isEdit && removedImages.length)
+      fd.append("removedImages", JSON.stringify(removedImages));
+    if (isEdit && removedCadFiles.length)
+      fd.append("removedCadFiles", JSON.stringify(removedCadFiles));
     images.forEach((f) => fd.append("images", f));
     cadFiles.forEach((f) => fd.append("cadFiles", f));
 

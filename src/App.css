@@ -1256,21 +1256,35 @@ background: #1e1e1e;
 
 
 
+/* ── Add to App.css — Styles module ── */
 
+/* Stone section header row */
+.stone-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 0 8px;
+  border-bottom: 1px solid var(--g200);
+  margin-bottom: 8px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--g500);
+}
 
-* ── Add to App.css — Style module specific ── */
- 
-/* Stone row */
+/* Stone row — horizontal flex */
 .stone-row {
   display: flex;
+  align-items: center;
   gap: 10px;
-  align-items: flex-start;
-  margin-bottom: 10px;
-  padding-bottom: 10px;
+  padding: 8px 0;
   border-bottom: 1px solid var(--g200);
 }
-.stone-row:last-child { border-bottom: none; margin-bottom: 0; }
- 
+.stone-row:last-child { border-bottom: none; }
+.stone-row .form-inp,
+.stone-row .form-select { margin-bottom: 0; }
+
 /* Image preview grid */
 .img-preview-grid {
   display: flex;
@@ -1280,65 +1294,78 @@ background: #1e1e1e;
 }
 .img-preview-item {
   position: relative;
-  width: 90px;
-  height: 90px;
+  width: 88px;
+  height: 88px;
   border-radius: 8px;
   overflow: hidden;
   border: 1px solid var(--g200);
+  flex-shrink: 0;
 }
-.img-preview-item img { width: 100%; height: 100%; object-fit: cover; }
+.img-preview-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .img-remove-btn {
   position: absolute;
   top: 4px; right: 4px;
   width: 20px; height: 20px;
   border-radius: 50%;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0,0,0,0.55);
   color: #fff;
-  font-size: 10px;
+  font-size: 9px;
   border: none;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
+  line-height: 1;
 }
 .img-existing-tag {
   position: absolute;
   bottom: 0; left: 0; right: 0;
-  background: rgba(34,160,90,0.8);
+  background: rgba(34,160,90,0.82);
   color: #fff;
   font-size: 9px;
   text-align: center;
   padding: 2px 0;
 }
- 
+.img-add-more {
+  width: 88px; height: 88px;
+  border-radius: 8px;
+  border: 2px dashed var(--g300);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; color: var(--g500);
+  cursor: pointer; flex-shrink: 0;
+  transition: border-color .15s, color .15s;
+}
+.img-add-more:hover { border-color: var(--red); color: var(--red); }
+
 /* Upload placeholder */
 .upload-placeholder {
   border: 2px dashed var(--g300);
   border-radius: 8px;
-  padding: 28px;
+  padding: 32px;
   text-align: center;
   cursor: pointer;
   transition: border-color .15s;
   margin-top: 4px;
 }
 .upload-placeholder:hover { border-color: var(--red); }
- 
+
 /* CAD file list */
 .cad-file-list { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
 .cad-file-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   padding: 10px 14px;
   background: var(--g100);
   border: 1px solid var(--g200);
   border-radius: 7px;
 }
- 
+
 /* Style image thumbnail in table */
 .style-thumb {
   width: 44px; height: 44px;
   object-fit: cover;
   border-radius: 6px;
   border: 1px solid var(--g200);
+  display: block;
 }
 .style-thumb-empty {
   width: 44px; height: 44px;
@@ -1347,4 +1374,120 @@ background: #1e1e1e;
   display: flex; align-items: center; justify-content: center;
   font-size: 9px; color: var(--g500);
 }
- 
+
+
+
+
+/* ── Add to App.css — Rates / Sourcing module ── */
+
+/* Alert banner */
+.rate-alert-banner {
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: 8px;
+  padding: 11px 16px;
+  font-size: 12.5px;
+  color: #7a5300;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+/* Spotlight grid — 4 cols */
+.rate-spotlight-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+/* Spotlight card */
+.rate-spotlight-card {
+  background: #fff;
+  border: 1px solid var(--g200);
+  border-radius: 10px;
+  padding: 20px 22px;
+  position: relative;
+}
+.rsc-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.rsc-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--g500);
+}
+.rsc-icon { font-size: 18px; }
+.rsc-rate {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 3px;
+}
+.rsc-unit  { font-size: 11px; color: var(--g500); margin-bottom: 8px; }
+.rsc-change { font-size: 12px; font-weight: 600; margin-bottom: 6px; }
+.rsc-up   { color: var(--green); }
+.rsc-down { color: var(--red);   }
+.rsc-flat { color: var(--g500);  }
+.rsc-meta { font-size: 10.5px; color: var(--g500); }
+
+/* Bottom layout — table left, history right */
+.rate-bottom-grid {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.rate-right-col {
+  width: 280px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Inline rate input */
+.rate-inline-inp {
+  width: 110px;
+  padding: 6px 10px;
+  border: 1px solid var(--g200);
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--black);
+  outline: none;
+  transition: border-color .15s;
+}
+.rate-inline-inp:focus { border-color: var(--red); }
+
+/* History list */
+.rate-history-list { padding: 4px 0; }
+.rate-history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--g200);
+}
+.rate-history-item:last-child { border-bottom: none; }
+.rhi-name  { font-size: 12.5px; font-weight: 500; }
+.rhi-right { text-align: right; }
+.rhi-val   { font-size: 12.5px; font-weight: 600; }
+.rhi-up    { color: var(--green); }
+.rhi-down  { color: var(--red);   }
+.rhi-date  { font-size: 10.5px; color: var(--g500); margin-top: 2px; }
+
+/* Impact card */
+.rate-impact-card {
+  background: rgba(37,99,235,0.04);
+  border: 1px solid rgba(37,99,235,0.15);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+.ric-title { font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--blue); }
+.ric-body  { font-size: 12.5px; color: var(--black); line-height: 1.5; margin-bottom: 6px; }
+.ric-note  { font-size: 11px; color: var(--g500); }

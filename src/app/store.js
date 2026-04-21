@@ -4,6 +4,7 @@ import { UserAPI } from '../api/UserAPI';
 import { RdAPI } from '../api/RdAPI';
 import chatReducer from '../api/chatSlice';
 import { setupListeners } from '@reduxjs/toolkit/query';
+import { RatesAPI } from '../api/Ratesapi';
 
 export const resetAllState = createAction('RESET_ALL');
 
@@ -12,6 +13,7 @@ const appReducer = combineReducers({
   [AuthAPI.reducerPath]: AuthAPI.reducer,
   [UserAPI.reducerPath]: UserAPI.reducer,
   [RdAPI.reducerPath]: RdAPI.reducer,
+  [RatesAPI.reducerPath]: RatesAPI.reducer,
 });
 
 const rootReducer = (state, action) => {
@@ -28,6 +30,7 @@ export const store = configureStore({
       .concat(AuthAPI.middleware)
       .concat(UserAPI.middleware)
       .concat(RdAPI.middleware)
+      .concat(RatesAPI.middleware)
 });
 
 setupListeners(store.dispatch)
