@@ -1,0 +1,674 @@
+import React, { useState, useEffect, useRef } from 'react';
+import logo from '../../assets/images/cattivo-logo.png';
+import { NavLink, useLocation } from 'react-router-dom';
+import { authUser } from '../../helper/Utility';
+
+const Sidebar = () => {
+  const AUTH_LOCAL_INFO = authUser()
+  const location = useLocation();
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 992);
+  console.log("AUTH_LOCAL_INFO", authUser())
+  // Collapsible section states - each section works independently
+  const [dashboardOpen, setDashboardOpen] = useState(true);
+  const [salesOpen, setSalesOpen] = useState(true);
+  const [collaborationOpen, setCollaborationOpen] = useState(true);
+  const [insightsOpen, setInsightsOpen] = useState(true);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 992;
+      setIsMobile(mobile);
+      if (!mobile) setIsMobileOpen(false);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const toggleSidebar = () => {
+    setIsMobileOpen(!isMobileOpen);
+  };
+
+  const closeSidebar = () => {
+    if (isMobile) setIsMobileOpen(false);
+  };
+
+  // Dashboard items
+  const dashboardItems = [
+    { icon: 'bi-speedometer2', label: 'Main Dashboard', path: '/dashboard' },
+    { icon: 'bi-house-door', label: 'Home', path: '/dashboard/home' },
+    { icon: 'bi-bar-chart', label: 'Analytics', path: '/dashboard/analytics' },
+  ];
+
+  // Sales navigation items
+  const salesItems = [
+    { icon: 'bi-chat-dots', label: 'Inquiries', badge: '3', path: '/dashboard/inquiries' },
+    { icon: 'bi-people', label: 'Clients', path: '/dashboard/clients' },
+    { icon: 'bi-palette', label: 'Styles', path: '/dashboard/styles' },
+    { icon: 'bi-file-text', label: 'BOM', path: '/dashboard/bom' },
+    { icon: 'bi-calculator', label: 'Estimates', path: '/dashboard/estimates' },
+    { icon: 'bi-file-earmark-text', label: 'Quotes', badge: '4', path: '/dashboard/quotes' },
+    { icon: 'bi-file-earmark-check', label: 'Proformas', path: '/dashboard/proformas' },
+    { icon: 'bi-credit-card', label: 'Deposits', path: '/dashboard/deposits' },
+    { icon: 'bi-cart', label: 'Sales Order', path: '/dashboard/sales-order' },
+    { icon: 'bi-share', label: 'Production Handoff', path: '/dashboard/production-handoff' },
+  ];
+
+  // Collaboration navigation items
+  const collaborationItems = [
+    { icon: 'bi-chat-square-text', label: 'Threads', path: '/dashboard/threads' },
+    { icon: 'bi-bell', label: 'Notifications', badge: '9', path: '/dashboard/notifications' },
+  ];
+
+  // Insights navigation items
+  const insightsItems = [
+    { icon: 'bi-graph-up', label: 'Reports', path: '/dashboard/reports' },
+  ];
+
+  // Accordion Item Component
+  const AccordionItem = ({ title, icon, isOpen, onToggle, children }) => {
+    const contentRef = useRef(null);
+    const [height, setHeight] = useState(0);
+
+    useEffect(() => {
+      if (isOpen) {
+        setHeight(contentRef.current?.scrollHeight || 0);
+      } else {
+        setHeight(0);
+      }
+    }, [isOpen, children]);
+
+    return (
+      <div style={{ marginBottom: '20px' }}>
+        <div
+          onClick={onToggle}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '8px 12px',
+            marginBottom: '8px',
+            cursor: 'pointer',
+            borderRadius: '8px',
+          }}
+        >
+          {/* LEFT SIDE (ICON + TITLE) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+
+            {/* SVG ICON */}
+            {icon && (
+              <span style={{ display: 'flex', alignItems: 'center' }}>
+                {icon}
+              </span>
+            )}
+
+            <p
+              style={{
+                textTransform: 'uppercase',
+                color: '#fff',
+                fontSize: '11px',
+                fontWeight: 600,
+                letterSpacing: '0.1em',
+                margin: 0,
+              }}
+            >
+              {title}
+            </p>
+          </div>
+
+          {/* PLUS / MINUS ICON */}
+          <i
+            className={`bi bi-${isOpen ? 'dash-lg' : 'plus-lg'}`}
+            style={{ color: '#fff', fontSize: '12px' }}
+          />
+        </div>
+
+        <div
+          style={{
+            height: `${height}px`,
+            overflow: 'hidden',
+            transition: 'height 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
+          }}
+        >
+          <div className='left_submenu' ref={contentRef}>
+            {children}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Navigation item component with smooth hover
+  const NavItem = ({ item }) => {
+    const isActive = location.pathname === item.path;
+    return (
+      <NavLink
+        to={item.path}
+        onClick={closeSidebar}
+        style={{ textDecoration: 'none', display: 'block', marginBottom: '2px' }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '8px 12px',
+            marginLeft: '8px',
+            borderRadius: '8px',
+            background: isActive ? '#fff' : 'transparent',
+            color: isActive ? '#000' : '#fff',
+            fontSize: '13px',
+            transition: 'all 0.2s ease',
+            cursor: 'pointer',
+            transform: isActive ? 'translateX(0)' : 'translateX(0)',
+          }}
+          onMouseEnter={(e) => {
+            if (!isActive) {
+              e.currentTarget.style.backgroundColor = '#1a1a1a';
+              e.currentTarget.style.color = '#fff';
+              e.currentTarget.style.transform = 'translateX(4px)';
+              const icon = e.currentTarget.querySelector('i');
+              if (icon) icon.style.color = '#fff';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isActive) {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = '#fff';
+              e.currentTarget.style.transform = 'translateX(0)';
+              const icon = e.currentTarget.querySelector('i');
+              if (icon) icon.style.color = '#fff';
+            }
+          }}
+        >
+          <i
+            className={`bi ${item.icon}`}
+            style={{
+              fontSize: '16px',
+              color: isActive ? '#000' : '#fff',
+              width: '20px',
+              transition: 'all 0.2s ease',
+            }}
+          />
+          <span style={{ flex: 1 }}>{item.label}</span>
+          {item.badge && (
+            <span
+              style={{
+                background: isActive ? '#000' : '#d12026',
+                color: isActive ? '#fff' : '#fff',
+                fontSize: '10px',
+                fontWeight: 'bold',
+                borderRadius: '10px',
+                padding: '0px 6px',
+                minWidth: '18px',
+                textAlign: 'center',
+                lineHeight: '16px',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              {item.badge}
+            </span>
+          )}
+        </div>
+      </NavLink>
+    );
+  };
+
+  return (
+    <>
+      {/* Mobile Overlay */}
+      {isMobile && isMobileOpen && (
+        <div
+          onClick={closeSidebar}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.5)',
+            zIndex: 1040,
+            animation: 'fadeIn 0.3s ease',
+          }}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div
+        style={{
+          width: '260px',
+          background: '#0F0F0F',
+          borderRight: '1px solid #1a1a1a',
+          height: '100vh',
+          position: 'fixed',
+          top: 0,
+          left: isMobile ? (isMobileOpen ? '0' : '-260px') : '0',
+          zIndex: 1050,
+          boxShadow: '2px 0 8px rgba(0,0,0,0.3)',
+          transition: 'left 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        {/* Logo Section */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '20px 20px',
+            borderBottom: '1px solid #1a1a1a',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', flex: 1, justifyContent: 'center' }}>
+            <img src={logo} alt="website_logo" style={{ height: '52px' }} />
+          </div>
+          {isMobile && (
+            <i
+              className="bi bi-x-lg"
+              onClick={toggleSidebar}
+              style={{
+                color: '#d12026',
+                cursor: 'pointer',
+                fontSize: '18px',
+                transition: 'transform 0.2s ease',
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            />
+          )}
+        </div>
+
+        {/* Navigation */}
+        <nav style={{ flex: 1, padding: '20px 16px', overflowY: 'auto' }}>
+          {/* Dashboard Accordion */}
+          <AccordionItem
+            title="Dashboard"
+            icon={
+              <svg width="20" height="14" viewBox="0 0 20 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M1.82293 7.89465H4.02906V13.6313H1.82293V7.89465Z" fill="#FFD54F" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M5.42961 6.1925H7.63574V13.6314H5.42961V6.1925Z" fill="#FD4755" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M9.03625 7.6113H11.2424V13.6313H9.03625V7.6113Z" fill="#64B9FC" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M12.6429 5.21637H14.8491V13.6313H12.6429V5.21637Z" fill="#9EDE3E" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M2.92543 7.89465H4.02906V13.6313H2.92543V7.89465Z" fill="#FFC328" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M6.53229 6.19266H7.63592V13.6315H6.53229V6.19266Z" fill="#E41F2D" />
+                <path d="M7.6402 13.6354H6.52762V6.18848H7.6402V13.6354ZM6.53656 13.6273H7.63125V6.19653H6.53656V13.6273Z" fill="#E41F2D" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M10.1399 7.6113H11.2424V13.6313H10.1399V7.6113Z" fill="#31A7FB" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M13.7465 8.79315H14.849V13.6314H13.7465V8.79315Z" fill="#8DC637" />
+                <path d="M16.6137 13.8805H0.276758C0.203357 13.8805 0.132963 13.8542 0.0810605 13.8075C0.0291583 13.7608 0 13.6974 0 13.6314V0.249082C0 0.183021 0.0291583 0.119666 0.0810605 0.0729545C0.132963 0.0262425 0.203357 0 0.276758 0C0.350159 0 0.420553 0.0262425 0.472455 0.0729545C0.524357 0.119666 0.553516 0.183021 0.553516 0.249082V13.3823H16.6137C16.6501 13.3823 16.6861 13.3887 16.7197 13.4012C16.7532 13.4138 16.7838 13.4321 16.8095 13.4552C16.8352 13.4784 16.8555 13.5058 16.8694 13.5361C16.8834 13.5663 16.8905 13.5987 16.8905 13.6314C16.8905 13.6641 16.8833 13.6965 16.8694 13.7267C16.8555 13.7569 16.8351 13.7844 16.8094 13.8075C16.7837 13.8306 16.7532 13.849 16.7196 13.8615C16.686 13.874 16.6501 13.8805 16.6137 13.8805Z" fill="#1A5B96" />
+                <path d="M2.31145 6.47388C2.25636 6.4739 2.20252 6.45913 2.15683 6.43144C2.11113 6.40376 2.07565 6.36444 2.05493 6.3185C2.03422 6.27256 2.02921 6.22211 2.04054 6.17359C2.05187 6.12508 2.07904 6.08071 2.11856 6.04617L5.31516 3.25093C5.35189 3.21885 5.39778 3.19655 5.44773 3.18651C5.49769 3.17648 5.54976 3.1791 5.59817 3.19409L9.82063 4.50369L11.5641 3.20066C11.5921 3.17975 11.6243 3.164 11.659 3.15432C11.6937 3.14463 11.7302 3.1412 11.7664 3.14422C11.8026 3.14724 11.8378 3.15664 11.8699 3.1719C11.9021 3.18716 11.9306 3.20797 11.9538 3.23314C12.0007 3.28397 12.0232 3.34947 12.0165 3.41525C12.0097 3.48103 11.9742 3.54169 11.9177 3.5839L10.0544 4.97647C10.0178 5.0038 9.97406 5.02219 9.9273 5.02986C9.88054 5.03754 9.83236 5.03425 9.78742 5.02031L5.57867 3.715L2.5043 6.40343C2.4527 6.44868 2.38349 6.47396 2.31145 6.47388Z" fill="#64B9FC" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M15.3678 6.6251L15.6199 6.43452C15.8877 6.2298 16.2932 6.26109 16.5196 6.50307L19.8114 10.0143C20.0377 10.2553 20.003 10.6203 19.7352 10.824L19.4831 11.0156C19.2142 11.2193 18.8098 11.188 18.5834 10.947L15.2916 7.43482C15.0653 7.19385 15.0989 6.82879 15.3678 6.6251Z" fill="#FD4755" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M11.1202 1.60637C13.0597 0.134129 15.9582 0.354946 17.5941 2.10049C19.2299 3.84603 18.9845 6.4547 17.045 7.92693C15.1055 9.39917 12.2082 9.17836 10.5712 7.43281C8.93543 5.6873 9.18078 3.07861 11.1202 1.60637Z" fill="#407093" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M16.3189 7.1526C14.8557 8.26357 12.6675 8.09742 11.4319 6.77942C11.198 6.53018 11.0089 6.24955 10.8714 5.94769C10.798 5.78616 10.74 5.61932 10.6979 5.44896C10.4255 4.35044 10.824 3.1566 11.8461 2.38074C13.3106 1.26941 15.4988 1.43591 16.7336 2.75392C17.9695 4.07084 17.7833 6.04022 16.3189 7.1526Z" fill="#C4F0F6" />
+                <path d="M14.6307 2.53195H12.775C12.7016 2.53202 12.6313 2.55827 12.5794 2.60496C12.5276 2.65164 12.4984 2.71494 12.4983 2.78096C12.4983 2.91864 12.6224 3.03033 12.775 3.03033H13.9315L10.6979 5.44897C10.74 5.61932 10.798 5.78616 10.8714 5.9477C10.9018 5.93818 10.9299 5.92372 10.9544 5.90502L14.3537 3.36185V4.45113C14.3537 4.58845 14.4778 4.70014 14.6307 4.70014C14.7041 4.70008 14.7744 4.67382 14.8263 4.62714C14.8782 4.58045 14.9074 4.51715 14.9074 4.45113V2.78096C14.9074 2.71494 14.8782 2.65164 14.8263 2.60496C14.7744 2.55827 14.7041 2.53202 14.6307 2.53195Z" fill="#64B9FC" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M13.844 1.65275C14.9096 1.58722 15.993 1.96332 16.7336 2.75392C17.9694 4.07087 17.7834 6.04025 16.319 7.15249C15.6031 7.696 14.7134 7.93398 13.8473 7.88054C14.5577 7.83719 15.2591 7.59718 15.8451 7.15249C17.3095 6.04025 17.4943 4.07087 16.2596 2.75392C15.6289 2.08029 14.7493 1.70819 13.844 1.65275Z" fill="#ABE1FA" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M14.849 7.81099V5.69641H12.6429V7.60729C13.3342 7.88963 14.1118 7.96121 14.849 7.81099Z" fill="#9EDE3E" />
+              </svg>
+
+            }
+            isOpen={dashboardOpen}
+            onToggle={() => setDashboardOpen(!dashboardOpen)}
+          >
+            {dashboardItems.map((item) => (
+              <NavItem key={item.path} item={item} />
+            ))}
+          </AccordionItem>
+
+          {/* Sales Accordion */}
+          <AccordionItem
+            title="Sales"
+            icon={
+              <svg width="21" height="17" viewBox="0 0 21 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g clip-path="url(#clip0_182_177)">
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 7.75531H17.9425V8.56136H13.027V7.75531Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 7.84906H13.4923V8.43269H13.027V7.84906Z" fill="#FFD861" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 7.75531H17.9425V7.84902H13.027V7.75531Z" fill="#FFD147" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M17.322 7.90839C17.3366 7.99439 17.3439 8.08276 17.3439 8.17292C17.3439 8.26189 17.3366 8.34848 17.3227 8.4327H17.9425V7.90839H17.322Z" fill="#FAAA20" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 7.90837H17.9425V7.84906H13.027V7.90837Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 7.84906H13.4923V7.90837H13.027V7.84906Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 8.43268H17.9425V8.56139H13.027V8.43268Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.5516 8.5614H18.4671V9.36804H13.5516V8.5614Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.5516 8.6557H14.0161V9.23933H13.5516V8.6557Z" fill="#FFD861" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.5516 8.5614H18.4671V8.65571H13.5516V8.5614Z" fill="#FFD147" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M17.8466 8.71503C17.8612 8.80044 17.8685 8.88881 17.8685 8.97956C17.8685 9.06793 17.8612 9.15512 17.8473 9.23934H18.4671V8.71503H17.8466Z" fill="#FAAA20" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.5516 8.71501H18.4671V8.6557H13.5516V8.71501Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.5516 8.6557H14.0161V8.71501H13.5516V8.6557Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.5516 9.23932H18.4671V9.36803H13.5516V9.23932Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 9.36804H17.9425V10.1747H13.027V9.36804Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 9.46234H13.4923V10.046H13.027V9.46234Z" fill="#FFD861" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 9.36804H17.9425V9.46235H13.027V9.36804Z" fill="#FFD147" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M17.322 9.52106C17.3366 9.60706 17.3439 9.69543 17.3439 9.78559C17.3439 9.87456 17.3366 9.96115 17.3227 10.046H17.9425V9.52106H17.322Z" fill="#FAAA20" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 9.52106H17.9425V9.46234H13.027V9.52106Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 9.46234H13.4923V9.52106H13.027V9.46234Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 10.046H17.9425V10.1747H13.027V10.046Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 10.1747H17.9425V10.9813H13.027V10.1747Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 10.2684H13.4923V10.8526H13.027V10.2684Z" fill="#FFD861" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 10.1747H17.9425V10.2684H13.027V10.1747Z" fill="#FFD147" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M17.322 10.3277C17.3366 10.4137 17.3439 10.5021 17.3439 10.5922C17.3439 10.6812 17.3366 10.7678 17.3227 10.8526H17.9425V10.3277H17.322Z" fill="#FAAA20" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 10.3277H17.9425V10.2684H13.027V10.3277Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 10.2684H13.4923V10.3277H13.027V10.2684Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 10.8526H17.9425V10.9813H13.027V10.8526Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M12.638 10.9813H17.5535V11.7874H12.638V10.9813Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M12.638 11.075H13.1032V11.6586H12.638V11.075Z" fill="#FFD861" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M12.638 10.9813H17.5535V11.075H12.638V10.9813Z" fill="#FFD147" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M16.9336 11.1343C16.9476 11.2203 16.9549 11.3087 16.9549 11.3989C16.9549 11.4872 16.9483 11.5744 16.9344 11.6587H17.5535V11.1343H16.9336Z" fill="#FAAA20" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M12.638 11.1343H17.5535V11.075H12.638V11.1343Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M12.638 11.075H13.1032V11.1343H12.638V11.075Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M12.638 11.6587H17.5535V11.7874H12.638V11.6587Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 11.7874H17.9425V12.594H13.027V11.7874Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 11.8817H13.4923V12.4653H13.027V11.8817Z" fill="#FFD861" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 11.7874H17.9425V11.8817H13.027V11.7874Z" fill="#FFD147" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M17.322 11.9404C17.3366 12.0264 17.3439 12.1147 17.3439 12.2055C17.3439 12.2939 17.3366 12.3811 17.3227 12.4653H17.9425V11.9404H17.322Z" fill="#FAAA20" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 11.9404H17.9425V11.8817H13.027V11.9404Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 11.8817H13.4923V11.9404H13.027V11.8817Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 12.4653H17.9425V12.594H13.027V12.4653Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M12.5947 12.594H17.5103V13.4006H12.5947V12.594Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M12.5947 12.6883H13.0592V13.2719H12.5947V12.6883Z" fill="#FFD861" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M12.5947 12.594H17.5103V12.6883H12.5947V12.594Z" fill="#FFD147" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M16.8897 12.747C16.9036 12.833 16.9117 12.9214 16.9117 13.0115C16.9117 13.1005 16.9043 13.1871 16.8904 13.2719H17.5103V12.747H16.8897Z" fill="#FAAA20" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M12.5947 12.747H17.5103V12.6883H12.5947V12.747Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M12.5947 12.6883H13.0592V12.747H12.5947V12.6883Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M12.5947 13.272H17.5103V13.4007H12.5947V13.272Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 13.4006H17.9425V14.2067H13.027V13.4006Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 13.4944H13.4923V14.0786H13.027V13.4944Z" fill="#FFD861" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 13.4006H17.9425V13.4943H13.027V13.4006Z" fill="#FFD147" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M17.322 13.5536C17.3366 13.6397 17.3439 13.728 17.3439 13.8182C17.3439 13.9066 17.3366 13.9937 17.3227 14.0786H17.9425V13.5536H17.322Z" fill="#FAAA20" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 13.5537H17.9425V13.4944H13.027V13.5537Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 13.4944H13.4923V13.5537H13.027V13.4944Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 14.0786H17.9425V14.2067H13.027V14.0786Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.3421 6.94867H18.2576V7.75531H13.3421V6.94867Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.3421 7.04303H13.8073V7.62666H13.3421V7.04303Z" fill="#FFD861" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.3421 6.94867H18.2576V7.04298H13.3421V6.94867Z" fill="#FFD147" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M17.637 7.10175C17.6517 7.18775 17.659 7.27612 17.659 7.36628C17.659 7.45525 17.6517 7.54184 17.6377 7.62666H18.2576V7.10175H17.637Z" fill="#FAAA20" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.3421 7.10175H18.2576V7.04303H13.3421V7.10175Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.3421 7.04303H13.8073V7.10175H13.3421V7.04303Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.3421 7.62665H18.2576V7.75535H13.3421V7.62665Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M7.46964 10.1747H12.3852V10.9813H7.46964V10.1747Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M7.46964 10.2684H7.93489V10.8526H7.46964V10.2684Z" fill="#FFD861" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M7.46964 10.1747H12.3852V10.2684H7.46964V10.1747Z" fill="#FFD147" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M11.7646 10.3277C11.7793 10.4137 11.7866 10.5021 11.7866 10.5922C11.7866 10.6812 11.7793 10.7678 11.7653 10.8526H12.3852V10.3277H11.7646Z" fill="#FAAA20" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M7.46964 10.3277H12.3852V10.2684H7.46964V10.3277Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M7.46964 10.2684H7.93489V10.3277H7.46964V10.2684Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M7.46964 10.8526H12.3852V10.9813H7.46964V10.8526Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M6.55746 10.9813H11.473V11.7874H6.55746V10.9813Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M6.55746 11.075H7.02271V11.6586H6.55746V11.075Z" fill="#FFD861" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M6.55746 10.9813H11.473V11.075H6.55746V10.9813Z" fill="#FFD147" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M10.8524 11.1343C10.8671 11.2203 10.8744 11.3087 10.8744 11.3989C10.8744 11.4872 10.8671 11.5744 10.8531 11.6587H11.473V11.1343H10.8524Z" fill="#FAAA20" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M6.55746 11.1343H11.473V11.075H6.55746V11.1343Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M6.55746 11.075H7.02271V11.1343H6.55746V11.075Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M6.55746 11.6587H11.473V11.7874H6.55746V11.6587Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M7.05275 11.7874H11.9683V12.594H7.05275V11.7874Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M7.05275 11.8817H7.518V12.4653H7.05275V11.8817Z" fill="#FFD861" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M7.05275 11.7874H11.9683V11.8817H7.05275V11.7874Z" fill="#FFD147" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M11.3477 11.9404C11.3624 12.0264 11.3697 12.1147 11.3697 12.2055C11.3697 12.2939 11.3624 12.3811 11.3484 12.4653H11.9683V11.9404H11.3477Z" fill="#FAAA20" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M7.05275 11.9404H11.9683V11.8817H7.05275V11.9404Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M7.05275 11.8817H7.518V11.9404H7.05275V11.8817Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M7.05275 12.4653H11.9683V12.594H7.05275V12.4653Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M6.61974 12.594H11.5353V13.4006H6.61974V12.594Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M6.61974 12.6883H7.08499V13.2719H6.61974V12.6883Z" fill="#FFD861" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M6.61974 12.594H11.5353V12.6883H6.61974V12.594Z" fill="#FFD147" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M10.9154 12.747C10.9293 12.833 10.9374 12.9214 10.9374 13.0115C10.9374 13.1005 10.9301 13.1871 10.9162 13.2719H11.5353V12.747H10.9154Z" fill="#FAAA20" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M6.61974 12.747H11.5353V12.6883H6.61974V12.747Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M6.61974 12.6883H7.08499V12.747H6.61974V12.6883Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M6.61974 13.272H11.5353V13.4007H6.61974V13.272Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M7.05275 13.4006H11.9683V14.2067H7.05275V13.4006Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M7.05275 13.4944H7.518V14.0786H7.05275V13.4944Z" fill="#FFD861" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M7.05275 13.4006H11.9683V13.4943H7.05275V13.4006Z" fill="#FFD147" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M11.3477 13.5536C11.3624 13.6397 11.3697 13.728 11.3697 13.8182C11.3697 13.9066 11.3624 13.9937 11.3484 14.0786H11.9683V13.5536H11.3477Z" fill="#FAAA20" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M7.05275 13.5537H11.9683V13.4944H7.05275V13.5537Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M7.05275 13.4944H7.518V13.5537H7.05275V13.4944Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M7.05275 14.0786H11.9683V14.2067H7.05275V14.0786Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M1.02428 11.7874H5.93981V12.594H1.02428V11.7874Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M1.02428 11.8817H1.48953V12.4653H1.02428V11.8817Z" fill="#FFD861" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M1.02428 11.7874H5.93981V11.8817H1.02428V11.7874Z" fill="#FFD147" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M5.31924 11.9404C5.33389 12.0264 5.34122 12.1147 5.34122 12.2055C5.34122 12.2939 5.33389 12.3811 5.31997 12.4653H5.93981V11.9404H5.31924Z" fill="#FAAA20" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M1.02428 11.9404H5.93981V11.8817H1.02428V11.9404Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M1.02428 11.8817H1.48953V11.9404H1.02428V11.8817Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M1.02428 12.4653H5.93981V12.594H1.02428V12.4653Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M1.3005 12.594H6.21604V13.4006H1.3005V12.594Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M1.3005 12.6883H1.76575V13.2719H1.3005V12.6883Z" fill="#FFD861" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M1.3005 12.594H6.21604V12.6883H1.3005V12.594Z" fill="#FFD147" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M5.59546 12.747C5.61011 12.833 5.61744 12.9214 5.61744 13.0115C5.61744 13.1005 5.61011 13.1871 5.59619 13.2719H6.21603V12.747H5.59546Z" fill="#FAAA20" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M1.3005 12.747H6.21604V12.6883H1.3005V12.747Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M1.3005 12.6883H1.76575V12.747H1.3005V12.6883Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M1.3005 13.272H6.21604V13.4007H1.3005V13.272Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M0.80228 13.4006H5.71781V14.2067H0.80228V13.4006Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M0.80228 13.4944H1.26753V14.0786H0.80228V13.4944Z" fill="#FFD861" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M0.80228 13.4006H5.71781V13.4943H0.80228V13.4006Z" fill="#FFD147" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M5.09797 13.5536C5.11189 13.6397 5.11922 13.728 5.11922 13.8182C5.11922 13.9066 5.11262 13.9937 5.0987 14.0786H5.71781V13.5536H5.09797Z" fill="#FAAA20" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M0.80228 13.5537H5.71781V13.4944H0.80228V13.5537Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M0.80228 13.4944H1.26753V13.5537H0.80228V13.4944Z" fill="#FFC42E" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M0.80228 14.0786H5.71781V14.2067H0.80228V14.0786Z" fill="#FFAF26" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 12.1806C14.4096 12.1806 15.5306 13.0875 15.5306 14.2067C15.5306 15.3259 14.4096 16.2334 13.027 16.2334C11.6444 16.2334 10.5234 15.3259 10.5234 14.2067C10.5234 13.0875 11.6444 12.1806 13.027 12.1806Z" fill="#FAAA20" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 12.6106C14.1158 12.6106 14.9986 13.3253 14.9986 14.2067C14.9986 15.0886 14.1158 15.8034 13.027 15.8034C11.9382 15.8034 11.0554 15.0886 11.0554 14.2067C11.0554 13.3253 11.9382 12.6106 13.027 12.6106Z" fill="#FCE379" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.027 12.6106C13.449 12.6106 13.8403 12.718 14.1612 12.9012C13.8696 12.763 13.5296 12.6835 13.1669 12.6835C12.0782 12.6835 11.1953 13.3983 11.1953 14.2802C11.1953 14.8194 11.5265 15.2968 12.0328 15.5857C11.4481 15.3087 11.0554 14.7951 11.0554 14.2067C11.0554 13.3253 11.9382 12.6106 13.027 12.6106Z" fill="#F7CF56" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M12.3888 13.6871C12.3888 13.5471 12.4277 13.4338 12.5039 13.3478C12.5808 13.2618 12.6958 13.2061 12.849 13.1806V13.0264H13.205V13.1806C13.3611 13.2043 13.4783 13.2589 13.556 13.3449C13.6337 13.4309 13.6725 13.5448 13.6725 13.6871V13.7523H13.2607V13.6663C13.2607 13.5916 13.2417 13.5388 13.2036 13.508C13.1647 13.4771 13.1113 13.4623 13.0431 13.4623C12.9742 13.4623 12.9208 13.4771 12.8827 13.508C12.8438 13.5388 12.8248 13.5916 12.8248 13.6663C12.8248 13.7375 12.846 13.7986 12.8885 13.8502C12.9303 13.9018 12.9838 13.9499 13.0468 13.9943C13.1105 14.0382 13.1779 14.0821 13.2505 14.1242C13.3237 14.1669 13.3911 14.215 13.4549 14.2684C13.5179 14.3217 13.5714 14.3834 13.6131 14.4534C13.6556 14.5234 13.6769 14.6082 13.6769 14.7067C13.6769 14.849 13.6373 14.9635 13.5575 15.0507C13.4783 15.1379 13.3611 15.193 13.205 15.2168V15.368H12.849V15.2168C12.69 15.193 12.572 15.1379 12.4943 15.0507C12.4159 14.9635 12.3771 14.849 12.3771 14.7067V14.5643H12.7896V14.7274C12.7896 14.8028 12.8094 14.855 12.8504 14.8846C12.8915 14.9143 12.9464 14.9291 13.0153 14.9291C13.0834 14.9291 13.1384 14.9143 13.1794 14.8846C13.2204 14.855 13.2409 14.8028 13.2409 14.7274C13.2409 14.6563 13.2197 14.5952 13.1772 14.5436C13.1354 14.4926 13.0827 14.4445 13.0189 14.4C12.9559 14.3555 12.8878 14.3123 12.8153 14.2695C12.7427 14.2274 12.6746 14.1794 12.6108 14.126C12.5478 14.0726 12.4951 14.0109 12.4526 13.941C12.4101 13.8704 12.3888 13.7862 12.3888 13.6871Z" fill="#FAAA20" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M13.6776 6.29449L13.8051 6.84491L14.4858 6.94871L13.8051 7.05191L13.6776 7.60292L13.5494 7.05191L12.8695 6.94871L13.5494 6.84491L13.6776 6.29449ZM11.2906 11.9618L11.3983 12.6599L12.2614 12.747L11.3983 12.8342L11.2906 13.5329L11.1829 12.8342L10.3205 12.747L11.1829 12.6599L11.2906 11.9618Z" fill="#ECF0F1" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M2.51601 11.7873L5.56029 7.84784L6.66517 7.85258L2.98126 11.7873H2.51601Z" fill="#61BF6B" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M5.56029 7.84784L8.23969 10.1746H9.32405L6.66516 7.85258L5.56029 7.84784Z" fill="#72CF7B" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M11.5939 4.07861L8.23969 10.1747H9.32405L13.1303 4.07861H11.5939Z" fill="#61BF6B" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M11.5939 4.07861L14.8345 6.94872H16.6017L13.1303 4.07861H11.5939Z" fill="#72CF7B" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M17.5403 2.63318L14.8089 6.94872H16.6017L19.202 2.97719L17.5403 2.63318Z" fill="#61BF6B" />
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M19.6695 0.768982L16.5351 2.62782L20.197 3.38583L19.6695 0.768982Z" fill="#61BF6B" />
+                </g>
+                <defs>
+                  <clipPath id="clip0_182_177">
+                    <rect width="21" height="17" fill="white" />
+                  </clipPath>
+                </defs>
+              </svg>
+
+
+            }
+            isOpen={salesOpen}
+            onToggle={() => setSalesOpen(!salesOpen)}
+          >
+            {salesItems.map((item) => (
+              <NavItem key={item.path} item={item} />
+            ))}
+          </AccordionItem>
+
+          {/* Collaboration Accordion */}
+          <AccordionItem
+            title="Collaboration"
+            icon={
+              <svg width="21" height="17" viewBox="0 0 21 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g clip-path="url(#clip0_182_348)">
+                  <path d="M17.7188 13.2812H19.0312V16.4688H17.7188V13.2812Z" fill="#AAB2BD" />
+                  <path d="M6.5625 0.796875V1.59375H4.59375V0.796875C4.59375 0.650781 4.74141 0.53125 4.92188 0.53125H6.23438C6.41484 0.53125 6.5625 0.650781 6.5625 0.796875ZM3.28125 1.85938V2.65625H1.3125V1.85938C1.3125 1.71328 1.46016 1.59375 1.64062 1.59375H2.95312C3.13359 1.59375 3.28125 1.71328 3.28125 1.85938Z" fill="#CF9E76" />
+                  <path d="M6.5625 1.59375V3.4425L4.62656 4.05344L4.59375 3.98438V1.59375H6.5625ZM3.28125 2.65625V4.48109L1.3125 5.10531V2.65625H3.28125Z" fill="#DFB28B" />
+                  <path d="M1.3125 5.10531L3.28125 4.48109L4.62656 4.05344L6.5625 3.4425L8.20312 2.92188H9.84375V3.98438H8.53125L0.65625 6.375V5.3125L1.3125 5.10531Z" fill="#CCD1D9" />
+                  <path d="M9.84375 7.96875H13.7812V11.1562H9.84375V7.96875ZM15.0938 7.96875H19.0312V11.1562H15.0938V7.96875Z" fill="#D3A06C" />
+                  <path d="M8.53125 3.98438L0.65625 6.375V16.4688H9.84375V3.98438H8.53125Z" fill="#E6E9ED" />
+                  <path d="M5.90625 12.2188H8.53125V16.4688H5.90625V12.2188ZM1.96875 12.2188H4.59375V16.4688H1.96875V12.2188Z" fill="#69D6F4" />
+                  <path d="M15.0413 7.84391C15.6298 7.68648 16.1421 7.38272 16.505 6.9759C16.8679 6.56908 17.063 6.07994 17.0625 5.57812C17.0625 4.94409 16.7514 4.33603 16.1975 3.8877C15.6437 3.43937 14.8926 3.1875 14.1094 3.1875C13.3262 3.1875 12.575 3.43937 12.0212 3.8877C11.4674 4.33603 11.1562 4.94409 11.1562 5.57812C11.1562 6.81063 12.308 7.82266 13.7845 7.95281L13.7812 7.96875H9.84375V2.92188H9.51562V2.91125L11.0939 1.63359L11.2317 1.74516C11.3573 1.84742 11.5177 1.91717 11.6923 1.94555C11.867 1.97392 12.0482 1.95965 12.2128 1.90453L12.2391 1.89656C12.577 1.78234 12.7969 1.51672 12.7969 1.21922V1.0625H15.4219V1.21922C15.4219 1.51672 15.6417 1.78234 15.9797 1.89656C16.0945 1.93375 16.2192 1.95234 16.3373 1.95234C16.5834 1.95234 16.8263 1.87531 17.0067 1.72922L17.1248 1.63359L18.982 3.13703L18.8442 3.24859C18.7179 3.35029 18.6317 3.48008 18.5967 3.62148C18.5616 3.76289 18.5793 3.90953 18.6473 4.04281L18.6572 4.06406C18.7983 4.33766 19.1264 4.51562 19.4939 4.51562H19.6875V6.64062H19.4939C19.1264 6.64062 18.7983 6.81859 18.6572 7.09219C18.6112 7.18516 18.5883 7.28609 18.5883 7.38172C18.5883 7.58094 18.6834 7.7775 18.8639 7.92359V7.96875H15.0938L15.0413 7.84391Z" fill="#FFC729" />
+                  <path d="M15.0412 7.84391C14.6378 7.95636 14.2082 7.99359 13.7845 7.95281C12.308 7.82266 11.1562 6.81063 11.1562 5.57812C11.1562 4.94409 11.4674 4.33603 12.0212 3.8877C12.575 3.43937 13.3262 3.1875 14.1094 3.1875C14.8926 3.1875 15.6437 3.43937 16.1975 3.8877C16.7514 4.33603 17.0625 4.94409 17.0625 5.57812C17.0625 6.63531 16.2159 7.53047 15.0412 7.84391ZM15.75 5.57812C15.75 4.845 15.015 4.25 14.1094 4.25C13.2037 4.25 12.4688 4.845 12.4688 5.57812C12.4688 6.31125 13.2037 6.90625 14.1094 6.90625C15.015 6.90625 15.75 6.31125 15.75 5.57812Z" fill="#FCD770" />
+                  <path d="M19.0312 11.1562C19.7564 11.1562 20.3438 11.6317 20.3438 12.2188C20.3438 12.5109 20.1961 12.7766 19.9598 12.9705C19.7203 13.1617 19.3922 13.2812 19.0312 13.2812H17.7188C18.4439 13.2812 19.0312 12.8058 19.0312 12.2188C19.0312 11.6317 18.4439 11.1562 17.7188 11.1562H19.0312ZM15.0938 11.1562H17.7188C16.9936 11.1562 16.4062 11.6317 16.4062 12.2188C16.4062 12.8058 16.9936 13.2812 17.7188 13.2812H13.7812C14.5064 13.2812 15.0938 12.8058 15.0938 12.2188C15.0938 11.6317 14.5064 11.1562 13.7812 11.1562H15.0938ZM9.84375 11.1562H13.7812C13.0561 11.1562 12.4688 11.6317 12.4688 12.2188C12.4688 12.8058 13.0561 13.2812 13.7812 13.2812H9.84375C10.5689 13.2812 11.1562 12.8058 11.1562 12.2188C11.1562 11.6317 10.5689 11.1562 9.84375 11.1562Z" fill="#CCD1D9" />
+                  <path d="M17.7188 11.1562C18.4439 11.1562 19.0312 11.6317 19.0312 12.2188C19.0312 12.8058 18.4439 13.2812 17.7188 13.2812C16.9936 13.2812 16.4062 12.8058 16.4062 12.2188C16.4062 11.6317 16.9936 11.1562 17.7188 11.1562ZM13.7812 11.1562C14.5064 11.1562 15.0938 11.6317 15.0938 12.2188C15.0938 12.8058 14.5064 13.2812 13.7812 13.2812C13.0561 13.2812 12.4688 12.8058 12.4688 12.2188C12.4688 11.6317 13.0561 11.1562 13.7812 11.1562ZM9.84375 11.1562C10.5689 11.1562 11.1562 11.6317 11.1562 12.2188C11.1562 12.8058 10.5689 13.2812 9.84375 13.2812V11.1562Z" fill="#969FAA" />
+                  <path d="M16.4062 7.96875H17.7188V9.03125H16.4062V7.96875ZM11.1562 7.96875H12.4688V9.03125H11.1562V7.96875Z" fill="#B27946" />
+                  <path d="M7.21875 7.4375H8.53125V9.03125H7.21875V7.4375ZM4.59375 7.4375H5.90625V9.03125H4.59375V7.4375ZM1.96875 7.4375H3.28125V9.03125H1.96875V7.4375Z" fill="#69D6F4" />
+                  <path d="M17.7188 12.4844C17.9 12.4844 18.0469 12.3655 18.0469 12.2188C18.0469 12.072 17.9 11.9531 17.7188 11.9531C17.5375 11.9531 17.3906 12.072 17.3906 12.2188C17.3906 12.3655 17.5375 12.4844 17.7188 12.4844Z" fill="black" />
+                  <path d="M13.7812 12.4844C13.9625 12.4844 14.1094 12.3655 14.1094 12.2188C14.1094 12.072 13.9625 11.9531 13.7812 11.9531C13.6 11.9531 13.4531 12.072 13.4531 12.2188C13.4531 12.3655 13.6 12.4844 13.7812 12.4844Z" fill="black" />
+                  <path d="M19.3594 13.52C20.1072 13.3965 20.6719 12.8602 20.6719 12.2188C20.6719 11.5773 20.1072 11.041 19.3594 10.9175V7.70312H19.0654C18.9918 7.63418 18.9432 7.5501 18.9249 7.46019C18.9067 7.37028 18.9195 7.27803 18.962 7.19366C19.0051 7.10852 19.0786 7.03571 19.173 6.98452C19.2675 6.93333 19.3786 6.90608 19.4923 6.90625H20.0156V4.25H19.4923C19.2593 4.25 19.0509 4.13711 18.9512 3.94161C18.9078 3.8568 18.8965 3.76349 18.9186 3.67346C18.9407 3.58344 18.9954 3.50075 19.0755 3.43586L19.4457 3.1365L17.1255 1.25827L16.7754 1.54142C16.5989 1.68459 16.3354 1.72736 16.1047 1.6498C15.9996 1.61489 15.9097 1.55541 15.8465 1.47896C15.7833 1.4025 15.7497 1.31253 15.75 1.22055V0.796875H12.4688V1.22055C12.4688 1.40941 12.3296 1.57808 12.0878 1.65856C11.9831 1.69384 11.8678 1.70308 11.7566 1.68511C11.6454 1.66713 11.5433 1.62275 11.4634 1.55762L11.0936 1.25773L9.366 2.65625H8.14144L6.89062 3.0523V0.796875C6.89062 0.503891 6.5963 0.265625 6.23438 0.265625H4.92188C4.55995 0.265625 4.26562 0.503891 4.26562 0.796875V3.88397L3.60938 4.09195V1.85938C3.60938 1.56639 3.31505 1.32812 2.95312 1.32812H1.64062C1.2787 1.32812 0.984375 1.56639 0.984375 1.85938V4.92336L0.328125 5.13134V16.7344H20.6719V16.2031H19.3594V13.52ZM0.984375 6.55908L8.59064 4.25H9.51562V10.3594H0.984375V6.55908ZM11.4844 5.57812C11.4844 4.40645 12.662 3.45312 14.1094 3.45312C15.5567 3.45312 16.7344 4.40645 16.7344 5.57812C16.7344 6.7498 15.5567 7.70312 14.1094 7.70312C12.662 7.70312 11.4844 6.7498 11.4844 5.57812ZM16.7344 8.23438H17.3906V8.76562H16.7344V8.23438ZM18.0469 9.29688V8.23438H18.7031V10.8906H15.4219V8.23438H16.0781V9.29688H18.0469ZM18.7031 12.2188C18.7031 12.6581 18.2615 13.0156 17.7188 13.0156C17.176 13.0156 16.7344 12.6581 16.7344 12.2188C16.7344 11.7794 17.176 11.4219 17.7188 11.4219C18.2615 11.4219 18.7031 11.7794 18.7031 12.2188ZM14.7656 10.8906H14.1094V8.23438C14.3341 8.23438 14.5537 8.21578 14.7656 8.18072V10.8906ZM11.4844 8.23438H12.1406V8.76562H11.4844V8.23438ZM12.7969 9.29688V8.23438H13.4531V10.8906H10.1719V8.23438H10.8281V9.29688H12.7969ZM10.1719 12.9668V11.471C10.5528 11.581 10.8281 11.8732 10.8281 12.219C10.8281 12.5649 10.5528 12.8568 10.1719 12.9668ZM11.1477 11.4219H12.477C12.2689 11.6445 12.1406 11.9186 12.1406 12.2188C12.1406 12.5189 12.2689 12.793 12.4773 13.0156H11.148C11.3561 12.793 11.4844 12.5189 11.4844 12.2188C11.4844 11.9186 11.3561 11.6445 11.1477 11.4219ZM12.7969 12.2188C12.7969 11.7794 13.2385 11.4219 13.7812 11.4219C14.324 11.4219 14.7656 11.7794 14.7656 12.2188C14.7656 12.6581 14.324 13.0156 13.7812 13.0156C13.2385 13.0156 12.7969 12.6581 12.7969 12.2188ZM15.0852 11.4219H16.4145C16.2064 11.6445 16.0781 11.9186 16.0781 12.2188C16.0781 12.5189 16.2064 12.793 16.4148 13.0156H15.0855C15.2936 12.793 15.4219 12.5189 15.4219 12.2188C15.4219 11.9186 15.2936 11.6445 15.0852 11.4219ZM18.0469 13.5469H18.7031V16.2031H18.0469V13.5469ZM20.0156 12.2188C20.0156 12.6581 19.574 13.0156 19.0312 13.0156H19.0227C19.2311 12.793 19.3594 12.5189 19.3594 12.2188C19.3594 11.9186 19.2311 11.6445 19.0227 11.4219H19.0312C19.574 11.4219 20.0156 11.7794 20.0156 12.2188ZM11.0982 2.00547C11.4453 2.23178 11.9205 2.28836 12.3638 2.1412C12.5684 2.07333 12.7465 1.96193 12.8793 1.8188C13.0121 1.67566 13.0946 1.50612 13.1181 1.32812H15.101C15.1244 1.5061 15.2068 1.67564 15.3396 1.81877C15.4723 1.96191 15.6504 2.07332 15.855 2.1412C16.2816 2.28358 16.7613 2.22833 17.1186 2.00361L18.523 3.14048C18.2431 3.42178 18.1729 3.80641 18.3556 4.16473C18.4395 4.33034 18.577 4.47453 18.7538 4.58203C18.9305 4.68953 19.1399 4.75634 19.3597 4.77541V6.38058C19.1399 6.39964 18.9306 6.46643 18.7539 6.57388C18.5771 6.68133 18.4395 6.82544 18.3556 6.99098C18.2401 7.21763 18.2287 7.47026 18.3235 7.70312H16.0699C16.8696 7.21836 17.3906 6.44752 17.3906 5.57812C17.3906 4.11347 15.9187 2.92188 14.1094 2.92188C12.3001 2.92188 10.8281 4.11347 10.8281 5.57812C10.8281 6.44752 11.3492 7.21836 12.1492 7.70312H10.1719V2.75506L11.0982 2.00547ZM6.23438 0.796875V1.32812H4.92188V0.796875H6.23438ZM4.92188 1.85938H6.23438V3.26028L4.92188 3.67598V1.85938ZM2.95312 1.85938V2.39062H1.64062V1.85938H2.95312ZM1.64062 2.92188H2.95312V4.29967L1.64062 4.71538V2.92188ZM8.26481 3.1875H9.51562V3.71875H8.47186L0.984375 5.9917V5.49392L8.26481 3.1875ZM4.26562 16.2031H2.29688V12.4844H4.26562V16.2031ZM8.20312 16.2031H6.23438V12.4844H8.20312V16.2031ZM9.51562 16.2031H8.85938V11.9531H5.57812V16.2031H4.92188V11.9531H1.64062V16.2031H0.984375V10.8906H9.51562V11.1562V16.2031ZM10.1719 13.5469H17.3906V16.2031H10.1719V13.5469Z" fill="black" />
+                  <path d="M6.89062 7.17188V9.29688H8.85938V7.17188H6.89062ZM8.20312 8.76562H7.54688V7.70312H8.20312V8.76562ZM4.26562 9.29688H6.23438V7.17188H4.26562V9.29688ZM4.92188 7.70312H5.57812V8.76562H4.92188V7.70312ZM1.64062 9.29688H3.60938V7.17188H1.64062V9.29688ZM2.29688 7.70312H2.95312V8.76562H2.29688V7.70312ZM14.1094 3.98438C13.0236 3.98438 12.1406 4.69917 12.1406 5.57812C12.1406 6.45708 13.0236 7.17188 14.1094 7.17188C15.1951 7.17188 16.0781 6.45708 16.0781 5.57812C16.0781 4.69917 15.1951 3.98438 14.1094 3.98438ZM14.1094 6.64062C13.3855 6.64062 12.7969 6.16409 12.7969 5.57812C12.7969 4.99216 13.3855 4.51562 14.1094 4.51562C14.8332 4.51562 15.4219 4.99216 15.4219 5.57812C15.4219 6.16409 14.8332 6.64062 14.1094 6.64062Z" fill="black" />
+                </g>
+                <defs>
+                  <clipPath id="clip0_182_348">
+                    <rect width="21" height="17" fill="white" />
+                  </clipPath>
+                </defs>
+              </svg>
+
+
+            }
+            isOpen={collaborationOpen}
+            onToggle={() => setCollaborationOpen(!collaborationOpen)}
+          >
+            {collaborationItems.map((item) => (
+              <NavItem key={item.path} item={item} />
+            ))}
+          </AccordionItem>
+
+          {/* Insights Accordion */}
+          <AccordionItem
+            title="Insights"
+            icon={
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 512 512"
+              >
+                <g fillRule="evenodd">
+                  <path fill="#fcdb35" d="M315.974 374.458H196.026c-7.545 0-13.7-6.155-13.7-13.7v-6.146c0-71.368-73.674-91.416-73.674-187.328 0-87.999 73.673-131.998 147.348-131.998s147.347 43.999 147.347 131.998c0 95.912-73.674 115.96-73.674 187.328v6.146c0 7.546-6.154 13.7-13.7 13.7z" />
+                  <path fill="#ffeb87" d="M291.374 374.458h-95.348c-7.545 0-13.7-6.155-13.7-13.7v-6.146c0-71.368-73.674-91.416-73.674-187.328 0-83.096 65.694-126.951 135.048-131.581 69.354 4.629 135.047 48.484 135.047 131.581 0 95.912-73.674 115.96-73.674 187.328v6.146c0 7.546-6.154 13.7-13.7 13.7z" />
+                  <path fill="#9b827a" d="M198.54 417.509c-6.903 0-12.5-5.596-12.5-12.5s5.596-12.5 12.5-12.5h114.92c6.903 0 12.5 5.596 12.5 12.5s-5.596 12.5-12.5 12.5z" />
+                </g>
+
+                <path fill="#fdbe25" d="M243.5 229.507h25v144.951h-25z" />
+
+                <path
+                  fill="#9b827a"
+                  fillRule="evenodd"
+                  d="M225.602 459.594c-6.903 0-12.5-5.596-12.5-12.5s5.596-12.5 12.5-12.5h60.796c6.903 0 12.5 5.596 12.5 12.5s-5.596 12.5-12.5 12.5H268.5v4.621c0 6.903-5.596 12.5-12.5 12.5s-12.5-5.596-12.5-12.5v-4.621z"
+                />
+
+                <circle cx="256" cy="208.771" r="32.964" fill="#f99500" />
+
+                <path
+                  fill="#f9ac00"
+                  fillRule="evenodd"
+                  d="M248.2 240.805c-14.44-3.504-25.164-16.515-25.164-32.033s10.723-28.529 25.164-32.033c14.44 3.504 25.164 16.515 25.164 32.033s-10.723 28.529-25.164 32.033z"
+                />
+
+                <path
+                  fill="#fcdb35"
+                  fillRule="evenodd"
+                  d="M486 163.308c6.903 0 12.5 5.596 12.5 12.5s-5.596 12.5-12.5 12.5h-27.162c-6.903 0-12.5-5.596-12.5-12.5s5.596-12.5 12.5-12.5zm-460 25c-6.903 0-12.5-5.596-12.5-12.5s5.596-12.5 12.5-12.5h27.162c6.903 0 12.5 5.596 12.5 12.5s-5.596 12.5-12.5 12.5zM48.101 80.791c-5.96-3.452-7.993-11.082-4.541-17.041 3.452-5.96 11.081-7.993 17.041-4.541L84.123 72.79c5.96 3.452 7.993 11.082 4.541 17.041s-11.081 7.992-17.041 4.541zm12.451 211.617c-5.96 3.424-13.567 1.37-16.992-4.59-3.425-5.959-1.37-13.567 4.59-16.992l23.523-13.581c5.959-3.425 13.567-1.37 16.992 4.59 3.424 5.96 1.37 13.567-4.59 16.992zm403.346-21.581c5.96 3.452 7.993 11.082 4.541 17.041-3.452 5.96-11.081 7.993-17.041 4.541l-23.522-13.581c-5.959-3.452-7.992-11.082-4.541-17.041 3.452-5.96 11.081-7.993 17.041-4.541zM451.447 59.21c5.96-3.425 13.567-1.37 16.992 4.59 3.424 5.96 1.37 13.567-4.59 16.992l-23.523 13.581c-5.96 3.425-13.567 1.37-16.992-4.59s-1.37-13.567 4.59-16.992z"
+                />
+              </svg>
+
+            }
+            isOpen={insightsOpen}
+            onToggle={() => setInsightsOpen(!insightsOpen)}
+          >
+            {insightsItems.map((item) => (
+              <NavItem key={item.path} item={item} />
+            ))}
+          </AccordionItem>
+        </nav>
+
+        {/* Bottom User Section */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            padding: '16px',
+            borderTop: '1px solid #1a1a1a',
+            background: '#0F0F0F',
+            transition: 'all 0.2s ease',
+          }}
+        >
+          <div
+            style={{
+              width: '36px',
+              height: '36px',
+              background: '#D12026',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#fff',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              flexShrink: 0,
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'scale(1.05)';
+              e.currentTarget.style.boxShadow = '0 2px 8px rgba(184,150,46,0.3)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
+          >
+            D
+          </div>
+          <div style={{ flex: 1 }}>
+            <p style={{ margin: 0, fontWeight: 600, color: '#fff', fontSize: '13px' }}>{AUTH_LOCAL_INFO?.name}</p>
+            <p className='text-capitalize' style={{ margin: 0, color: '#d12026', fontSize: '11px' }}>{AUTH_LOCAL_INFO?.role}</p>
+          </div>
+
+        </div>
+      </div>
+
+      {/* Mobile Menu Button */}
+      {isMobile && !isMobileOpen && (
+        <button
+          onClick={toggleSidebar}
+          style={{
+            position: 'fixed',
+            top: '25px',
+            left: '15px',
+            zIndex: 1040,
+            background: '#d12026',
+            border: 'none',
+            borderRadius: '8px',
+            width: '30px',
+            height: '30px',
+            color: '#fff',
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+            transition: 'all 0.2s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'scale(1.05)';
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(184,150,46,0.4)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'scale(1)';
+            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+          }}
+        >
+          <i className="bi bi-list" style={{ fontSize: '20px' }} />
+        </button>
+      )}
+
+      {/* Add keyframe animations */}
+      <style>
+        {`
+          @keyframes fadeIn {
+            from {
+              opacity: 0;
+            }
+            to {
+              opacity: 1;
+            }
+          }
+          
+          /* Custom scrollbar */
+          ::-webkit-scrollbar {
+            width: 4px;
+          }
+          
+          ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+          }
+          
+          ::-webkit-scrollbar-thumb {
+            background: #343434;
+            border-radius: 4px;
+          }
+          
+          ::-webkit-scrollbar-thumb:hover {
+            background: #343434;
+          }
+        `}
+      </style>
+    </>
+  );
+};
+
+export default Sidebar;

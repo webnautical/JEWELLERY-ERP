@@ -1,0 +1,11 @@
+import React from 'react'
+
+export const Home = () => {
+  return (
+    <div>
+        <h2>Home</h2>
+
+        <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Labore qui atque culpa! Est eum praesentium, eaque nobis maxime officia eos doloribus. Aspernatur nesciunt praesentium tempore nemo quo sit ab perspiciatis voluptatum magni atque fugit sequi est architecto commodi, officia deserunt cumque eveniet. Molestiae, magnam aspernatur! Aliquid fugiat totam quis cumque quidem, debitis omnis consectetur esse consequuntur dolores iure magnam eaque at, incidunt eveniet corporis repellendus nostrum quasi dicta? Eaque unde distinctio vitae voluptatem quis eos rerum dignissimos harum itaque sequi culpa quisquam aliquid quo, mollitia tempore similique modi? Suscipit dicta iure laborum earum aliquid, neque architecto inventore adipisci minima fuga id impedit non repellat facere at quisquam soluta iusto ut exercitationem aut alias eum! Placeat doloremque natus velit dolor iure ipsum dicta cum ut delectus voluptate debitis tenetur blanditiis veritatis perferendis eius quam, labore mollitia eligendi! Non, repellat explicabo accusamus fugit doloribus autem. Voluptatum officiis porro maiores, necessitatibus culpa reprehenderit accusantium debitis perferendis aut temporibus sunt, non quo voluptate expedita animi suscipit? Doloribus placeat optio aut ullam, illo at veritatis fuga. Cupiditate repellat ex distinctio id ad veniam assumenda, maiores soluta molestiae, sint natus voluptatem quasi alias tempore voluptates architecto porro qui molestias deleniti cum incidunt! Dolore eaque molestias odit itaque quasi eligendi nulla reprehenderit omnis cum, odio nesciunt similique exercitationem officia quod sed temporibus, repellat aliquid atque, nostrum cumque dolorum cupiditate tenetur? Sunt beatae nulla voluptates enim aut nostrum ducimus eos, libero harum assumenda illo exercitationem consequatur in laudantium architecto unde sint! Ipsum assumenda praesentium eius ea voluptatum pariatur error doloremque veniam, quis possimus iste soluta quod impedit, esse hic? Vel ullam quam sequi iusto similique dicta nobis excepturi quos, tenetur libero rem dolorum cupiditate? Modi doloremque quod vitae, doloribus alias nihil quae ut magni, numquam minima eum! In error et nemo consequuntur vero qui optio dolor quam accusantium?</p>
+    </div>
+  )
+}
