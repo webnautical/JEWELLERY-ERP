@@ -14,6 +14,9 @@ import Styles from "./user/pages/admin/rdteam/Styles";
 import StyleForm from "./user/pages/admin/rdteam/Styleform";
 import Assets from "./user/pages/admin/sourcing/Assets";
 import RatesDashboard from "./user/pages/admin/sourcing/Ratesdashboard";
+import { appMenu } from "./routes/routesConfig";
+import Unauthorized from "./errorPage/Unauthorized";
+import ProtectedRoute from "./routes/ProtectedRoute";
 
 function App() {
   return (
@@ -23,7 +26,22 @@ function App() {
           <Route path="/" element={<AuthLayout cmp={Login} />} />
           <Route path="/login" element={<AuthLayout cmp={Login} />} />
 
-          <Route path="/dashboard" element={<UserLayout cmp={Dashboard} />} />
+          {appMenu.map((menu) =>
+            menu.children.map((route, i) => (
+              <Route
+                key={i}
+                path={route.path}
+                element={
+                  <ProtectedRoute allowedRoles={menu.roles}>
+                    <UserLayout cmp={route.element} />
+                  </ProtectedRoute>
+                }
+              />
+            ))
+          )}
+          <Route path="/unauthorized" element={<UserLayout cmp={Unauthorized} />} />
+
+          {/* <Route path="/dashboard" element={<UserLayout cmp={Dashboard} />} />
 
           <Route path="/users" element={<UserLayout cmp={Users} />} />
           <Route path="/users/add" element={<UserLayout cmp={UserForm} />} />
@@ -61,6 +79,10 @@ function App() {
             path="/dashboard/products/:id"
             element={<UserLayout cmp={ProductDetails} />}
           />
+          <Route path="/users/edit/:id" element={<UserLayout cmp={UserForm} />}/> */}
+
+
+
         </Routes>
       </BrowserRouter>
     </>
