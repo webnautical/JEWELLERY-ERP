@@ -12,6 +12,9 @@ import Users from "./user/pages/admin/users/Users";
 import UserForm from "./user/pages/admin/users/Userform";
 import Styles from "./user/pages/admin/rdteam/Styles";
 import StyleForm from "./user/pages/admin/rdteam/Styleform";
+import { appMenu } from "./routes/routesConfig";
+import Unauthorized from "./errorPage/Unauthorized";
+import ProtectedRoute from "./routes/ProtectedRoute";
 
 function App() {
   return (
@@ -21,38 +24,29 @@ function App() {
           <Route path="/" element={<AuthLayout cmp={Login} />} />
           <Route path="/login" element={<AuthLayout cmp={Login} />} />
 
-          <Route path="/dashboard" element={<UserLayout cmp={Dashboard} />} />
+          {appMenu.map((menu) =>
+            menu.children.map((route, i) => (
+              <Route
+                key={i}
+                path={route.path}
+                element={
+                  <ProtectedRoute allowedRoles={menu.roles}>
+                    <UserLayout cmp={route.element} />
+                  </ProtectedRoute>
+                }
+              />
+            ))
+          )}
+          <Route path="/unauthorized" element={<UserLayout cmp={Unauthorized} />} />
+
+          {/* <Route path="/dashboard" element={<UserLayout cmp={Dashboard} />} />
 
           <Route path="/users" element={<UserLayout cmp={Users} />} />
           <Route path="/users/add" element={<UserLayout cmp={UserForm} />} />
-          <Route
-            path="/users/edit/:id"
-            element={<UserLayout cmp={UserForm} />}
-          />
+          <Route path="/users/edit/:id" element={<UserLayout cmp={UserForm} />}/> */}
 
-          <Route path="/styles" element={<UserLayout cmp={Styles} />} />
-          <Route path="/styles/add" element={<UserLayout cmp={StyleForm} />} />
-          <Route
-            path="/styles/edit/:id"
-            element={<UserLayout cmp={StyleForm} />}
-          />
 
-          <Route
-            path="/dashboard/products"
-            element={<UserLayout cmp={Products} />}
-          />
-          <Route
-            path="/dashboard/products/add"
-            element={<UserLayout cmp={AddEditProduct} />}
-          />
-          <Route
-            path="/dashboard/products/edit/:id"
-            element={<UserLayout cmp={AddEditProduct} />}
-          />
-          <Route
-            path="/dashboard/products/:id"
-            element={<UserLayout cmp={ProductDetails} />}
-          />
+
         </Routes>
       </BrowserRouter>
     </>
