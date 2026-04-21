@@ -12,6 +12,8 @@ import Users from "./user/pages/admin/users/Users";
 import UserForm from "./user/pages/admin/users/Userform";
 import Styles from "./user/pages/admin/rdteam/Styles";
 import StyleForm from "./user/pages/admin/rdteam/Styleform";
+import Assets from "./user/pages/admin/sourcing/Assets";
+import RatesDashboard from "./user/pages/admin/sourcing/Ratesdashboard";
 
 function App() {
   return (
@@ -35,6 +37,12 @@ function App() {
           <Route
             path="/styles/edit/:id"
             element={<UserLayout cmp={StyleForm} />}
+          />
+
+          <Route path="/assets" element={<UserLayout cmp={Assets} />} />
+          <Route
+            path="/rates-dashboard"
+            element={<UserLayout cmp={RatesDashboard} />}
           />
 
           <Route
