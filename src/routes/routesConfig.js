@@ -1,5 +1,7 @@
 import StyleForm from "../user/pages/admin/rdteam/Styleform";
 import Styles from "../user/pages/admin/rdteam/Styles";
+import Assets from "../user/pages/admin/sourcing/Assets";
+import RatesDashboard from "../user/pages/admin/sourcing/Ratesdashboard";
 import UserForm from "../user/pages/admin/users/Userform";
 import Users from "../user/pages/admin/users/Users";
 import Dashboard from "../user/pages/Dashboard";
@@ -10,7 +12,7 @@ export const appMenu = [
     {
         title: "Dashboard",
         icon: "dashboard",
-        roles: ["admin", 'rd_team'],
+        roles: ["admin", 'rd_team', 'sourcing_team'],
         children: [
             {
                 path: "/dashboard",
@@ -86,6 +88,27 @@ export const appMenu = [
                 label: "Add Styles",
                 icon: "bi-palette",
                 hideInMenu: true,
+            },
+        ],
+    },
+
+    // SOURCING TEAM ROUTES AND MENU
+    {
+        title: "Rates",
+        icon: "styles",
+        roles: ["sourcing_team"],
+        children: [
+            {
+                path: "/rates-dashboard",
+                element: RatesDashboard,
+                label: "Dashboard",
+                icon: "bi-palette",
+            },
+            {
+                path: "/assets",
+                element: Assets,
+                label: "Assets",
+                icon: "bi-palette",
             },
         ],
     },
