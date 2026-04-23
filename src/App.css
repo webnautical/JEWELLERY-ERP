@@ -1491,3 +1491,19 @@ background: #1e1e1e;
 .ric-title { font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--blue); }
 .ric-body  { font-size: 12.5px; color: var(--black); line-height: 1.5; margin-bottom: 6px; }
 .ric-note  { font-size: 11px; color: var(--g500); }
+
+.view-cell {
+  padding: 8px 0;
+  font-size: 13px;
+  color: var(--black);
+}
+ 
+/* Stone header label reuse */
+.stone-header-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--g500);
+  padding-bottom: 6px;
+}

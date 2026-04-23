@@ -275,6 +275,16 @@ const Sidebar = () => {
         <nav style={{ flex: 1, padding: '20px 16px', overflowY: 'auto' }}>
 
           {filteredMenu.map((menu, index) => {
+
+            if (menu.type === "single") {
+              return menu.children
+                .filter(item => !item.hideInMenu)
+                .map(item => (
+                  <NavItem key={item.path} item={item} />
+                ));
+            }
+
+            // ✅ ACCORDION MENU
             const isOpen = openIndexes.includes(index);
 
             return (
