@@ -23,6 +23,10 @@ const UserLayout = ({ cmp }) => {
     return <Navigate to="/login" replace />
   }
 
+  console.log("auth",auth)
+
+
+
   return (
     <div style={{ 
       background: '#F7F7F7', 

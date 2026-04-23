@@ -41,48 +41,6 @@ function App() {
           )}
           <Route path="/unauthorized" element={<UserLayout cmp={Unauthorized} />} />
 
-          {/* <Route path="/dashboard" element={<UserLayout cmp={Dashboard} />} />
-
-          <Route path="/users" element={<UserLayout cmp={Users} />} />
-          <Route path="/users/add" element={<UserLayout cmp={UserForm} />} />
-          <Route
-            path="/users/edit/:id"
-            element={<UserLayout cmp={UserForm} />}
-          />
-
-          <Route path="/styles" element={<UserLayout cmp={Styles} />} />
-          <Route path="/styles/add" element={<UserLayout cmp={StyleForm} />} />
-          <Route
-            path="/styles/edit/:id"
-            element={<UserLayout cmp={StyleForm} />}
-          />
-
-          <Route path="/assets" element={<UserLayout cmp={Assets} />} />
-          <Route
-            path="/rates-dashboard"
-            element={<UserLayout cmp={RatesDashboard} />}
-          />
-
-          <Route
-            path="/dashboard/products"
-            element={<UserLayout cmp={Products} />}
-          />
-          <Route
-            path="/dashboard/products/add"
-            element={<UserLayout cmp={AddEditProduct} />}
-          />
-          <Route
-            path="/dashboard/products/edit/:id"
-            element={<UserLayout cmp={AddEditProduct} />}
-          />
-          <Route
-            path="/dashboard/products/:id"
-            element={<UserLayout cmp={ProductDetails} />}
-          />
-          <Route path="/users/edit/:id" element={<UserLayout cmp={UserForm} />}/> */}
-
-
-
         </Routes>
       </BrowserRouter>
     </>

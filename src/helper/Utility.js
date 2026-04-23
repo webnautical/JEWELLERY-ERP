@@ -11,6 +11,12 @@ export const apiBaseURL = () => {
     return IS_LIVE ? "" : "https://cattivo.itworkshop.in/"
 }
 
+const getCurrencySignFun = () => {
+    return "$"
+};
+
+export const CURRENCY_SIGN = getCurrencySignFun()
+
 export const getRemainingDays = (expiryDate) => {
     const now = new Date();
     const expiry = new Date(expiryDate);
