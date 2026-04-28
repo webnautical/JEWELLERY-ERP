@@ -11,10 +11,10 @@ export const AuthAPI = createApi({
                 body: params,
             }),
         }),
-        
+
         changePassword: builder.mutation({
             query: (params) => ({
-                url: 'auth/change-password',
+                url: 'auth/resetPassword',  // update if currently different
                 method: 'POST',
                 body: params,
             }),

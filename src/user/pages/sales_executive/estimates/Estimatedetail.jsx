@@ -90,7 +90,7 @@ const CreateQuoteModal = ({ est, onClose, onSuccess }) => {
   const [errs, setErrs] = useState({ marginPct: "", validUntil: "" });
 
   const [createQuote, { isLoading: saving }] = useCreateQuoteMutation();
-
+  const navigate = useNavigate()
   // Live quote price preview
   const costPerPiece = parseFloat(est?.total_cost) || 0;
   const margin = parseFloat(form.marginPct) || 0;
@@ -138,13 +138,17 @@ const CreateQuoteModal = ({ est, onClose, onSuccess }) => {
         notes: form.notes || undefined,
         action,
       }).unwrap();
+
       showSuccess(
         action === "send"
           ? `Quote ${res.data?.quote_code} sent to client via email.`
           : `Quote ${res.data?.quote_code} saved as draft.`,
         action === "send" ? "Quote Sent" : "Draft Saved",
+        () => {
+          navigate(`/quote-pdf/${res?.data?.id}`)
+        }
       );
-      onSuccess(res.data);
+      onSuccess(res?.data);
     } catch (err) {
       showError(err?.data?.message || "Something went wrong.");
     }
@@ -657,7 +661,6 @@ const EstimateDetail = () => {
           onClose={() => setShowQuoteModal(false)}
           onSuccess={() => {
             setShowQuoteModal(false);
-            navigate(`/quote-pdf/${res.data?.id}`); // goes straight to printable quote
           }}
         />
       )}

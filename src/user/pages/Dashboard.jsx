@@ -1,6 +1,7 @@
 import React from "react";
 import { authUser } from "../../helper/Utility";
 import AdminDashboard from "./dashboard/AdminDashboard";
+import RDDashboard from "./dashboard/Rddashboard";
 
 const Dashboard = () => {
   const user = authUser();
@@ -8,7 +9,7 @@ const Dashboard = () => {
     case "admin":
       return <AdminDashboard />;
     case "rd_team":
-      return <AdminDashboard />;
+      return <RDDashboard />;
     case "user":
       return <AdminDashboard />;
     default:

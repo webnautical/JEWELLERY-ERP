@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useGetInquiryByIdQuery, useCreateUpdateInquiryMutation, useGetAllClientsQuery } from "../../../../api/SalesAPI";
 import { useGetAllStylesQuery } from "../../../../api/RdAPI";
 import { useGetAllUsersQuery } from "../../../../api/UserAPI";
-import { showSuccess, showError } from "../../../../helper/Utility";
+import { showSuccess, showError, CURRENCY_SIGN } from "../../../../helper/Utility";
 
 const STATUS_OPTIONS = [
   { value: "new",         label: "New"         },
@@ -197,7 +197,7 @@ const InquiryForm = () => {
 
           {/* Target Price */}
           <div className="form-grp">
-            <label className="form-lbl">Target Price (₹/pc)</label>
+            <label className="form-lbl">Target Price ({CURRENCY_SIGN}/pc)</label>
             <input className="form-inp" name="targetPrice" type="number" placeholder="e.g. 66000" value={form.targetPrice} onChange={handleChange} />
           </div>
 

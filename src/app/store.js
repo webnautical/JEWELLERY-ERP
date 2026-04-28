@@ -7,6 +7,7 @@ import { setupListeners } from '@reduxjs/toolkit/query';
 import { RatesAPI } from '../api/Ratesapi';
 import { SalesAPI } from '../api/SalesAPI';
 import { CostingAPI } from '../api/CostingAPI';
+import { AdminAPI } from '../api/AdminAPI';
 
 export const resetAllState = createAction('RESET_ALL');
 
@@ -18,6 +19,7 @@ const appReducer = combineReducers({
   [RatesAPI.reducerPath]: RatesAPI.reducer,
   [SalesAPI.reducerPath]: SalesAPI.reducer,
   [CostingAPI.reducerPath]: CostingAPI.reducer,
+  [AdminAPI.reducerPath]: AdminAPI.reducer,
 });
 
 const rootReducer = (state, action) => {
@@ -37,6 +39,7 @@ export const store = configureStore({
       .concat(RatesAPI.middleware)
       .concat(SalesAPI.middleware)
       .concat(CostingAPI.middleware)
+      .concat(AdminAPI.middleware)
 });
 
 setupListeners(store.dispatch)

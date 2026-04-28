@@ -1698,3 +1698,34 @@ background: #1e1e1e;
   .pdf-table thead tr { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .pdf-grand-total     { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
+
+
+
+
+/* ── Add to App.css — Admin Dashboard page-specific ── */
+
+/* Loading */
+.dash-loading {
+    padding: 40px;
+    text-align: center;
+    color: var(--g500);
+    font-size: 13px;
+}
+
+/* Empty table cell */
+.dash-empty-cell {
+    text-align: center;
+    padding: 24px;
+    color: var(--g500);
+    font-size: 13px;
+}
+
+/* Alert ok tag — reuse tag pattern */
+.tag-ok {
+    background: rgba(34,160,90,0.1);
+    color: #1a7a45;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+}
