@@ -11,9 +11,14 @@ import BOMForm from "../user/pages/sales_executive/bom/Bomform";
 import BOMs from "../user/pages/sales_executive/bom/Boms";
 import ClientForm from "../user/pages/sales_executive/clients/Clientform";
 import Clients from "../user/pages/sales_executive/clients/Clients";
+import EstimateDetail from "../user/pages/sales_executive/estimates/Estimatedetail";
+import Estimates from "../user/pages/sales_executive/estimates/Estimates";
 import Inquiries from "../user/pages/sales_executive/inquiries/Inquiries";
 import InquiryDetail from "../user/pages/sales_executive/inquiries/Inquirydetail";
 import InquiryForm from "../user/pages/sales_executive/inquiries/InquiryForm";
+import QuotePDF from "../user/pages/sales_executive/quotes/Quotepdf";
+import Quotes from "../user/pages/sales_executive/quotes/Quotes";
+
 
 
 export const appMenu = [
@@ -174,6 +179,33 @@ export const appMenu = [
                 path: "/bom-form",
                 element: BOMForm,
                 label: "BOM",
+                icon: "bi-palette",
+                hideInMenu: true,
+            },
+            {
+                path: "/estimates",
+                element: Estimates,
+                label: "Estimates",
+                icon: "bi-palette",
+            },
+            {
+                path: "/estimate-detail/:id",
+                element: EstimateDetail,
+                label: "Estimate Detail",
+                icon: "bi-palette",
+                hideInMenu: true,
+            },
+            {
+                path: "/quotes",
+                element: Quotes,
+                label: "Quotes",
+                icon: "bi-palette",
+            },
+
+            {
+                path: "/quote-pdf/:id",
+                element: QuotePDF,
+                label: "Quote PDF",
                 icon: "bi-palette",
                 hideInMenu: true,
             },

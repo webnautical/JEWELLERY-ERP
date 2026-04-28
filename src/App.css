@@ -1507,3 +1507,194 @@ background: #1e1e1e;
   color: var(--g500);
   padding-bottom: 6px;
 }
+
+
+
+
+/* ── Add to App.css — Quote PDF print styles ── */
+
+/* Action bar — only visible on screen */
+.pdf-action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 32px;
+  background: #fff;
+  border-bottom: 1px solid var(--g200);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* PDF page container */
+.pdf-page {
+  width: 794px;
+  min-height: 1123px;
+  margin: 32px auto;
+  background: #fff;
+  padding: 56px 60px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.1);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: #111;
+}
+
+/* Brand / logo */
+.pdf-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 28px;
+}
+.pdf-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: #0f0f0f;
+}
+.pdf-tagline {
+  font-size: 9px;
+  letter-spacing: 5px;
+  color: #888;
+  margin-top: 2px;
+  text-transform: uppercase;
+}
+.pdf-doc-title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #d12026;
+  text-align: right;
+  margin-bottom: 10px;
+}
+.pdf-meta-table td { padding: 2px 0; font-size: 12px; }
+.pdf-meta-label { color: #888; padding-right: 16px; }
+.pdf-meta-value { font-weight: 500; text-align: right; }
+
+/* Divider */
+.pdf-divider {
+  height: 1px;
+  background: #e5e5e5;
+  margin: 20px 0;
+}
+
+/* Bill To + Reference */
+.pdf-parties {
+  display: flex;
+  justify-content: space-between;
+  gap: 32px;
+  margin-bottom: 28px;
+}
+.pdf-bill-to { flex: 1; }
+.pdf-ref-box {
+  flex: 1;
+  background: #f7f7f7;
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+.pdf-section-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #888;
+  margin-bottom: 6px;
+}
+.pdf-client-name { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.pdf-client-detail { font-size: 12px; color: #555; margin-bottom: 2px; }
+
+/* Items table */
+.pdf-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0;
+}
+.pdf-table thead tr {
+  background: #0f0f0f;
+  color: #fff;
+}
+.pdf-table th {
+  padding: 9px 12px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-align: left;
+}
+.pdf-table tbody tr { border-bottom: 1px solid #eee; }
+.pdf-table tbody tr:last-child { border-bottom: none; }
+.pdf-table td { padding: 12px 12px; font-size: 12.5px; vertical-align: top; }
+
+/* Totals */
+.pdf-totals {
+  width: 280px;
+  margin-left: auto;
+  margin-top: 16px;
+  border-top: 2px solid #0f0f0f;
+  padding-top: 12px;
+}
+.pdf-total-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+  font-size: 12.5px;
+  border-bottom: 1px solid #eee;
+}
+.pdf-total-row:last-child { border-bottom: none; }
+.pdf-grand-total {
+  font-size: 15px;
+  font-weight: 700;
+  color: #d12026;
+  border-top: 2px solid #0f0f0f;
+  padding-top: 10px;
+  margin-top: 4px;
+  border-bottom: none;
+}
+
+/* Terms */
+.pdf-terms {
+  margin-top: 36px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e5e5;
+}
+.pdf-terms-list div {
+  font-size: 11.5px;
+  color: #555;
+  margin-bottom: 5px;
+  line-height: 1.5;
+}
+
+/* Versions table */
+.pdf-versions { margin-top: 28px; }
+
+/* Footer */
+.pdf-footer {
+  margin-top: 48px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e5e5;
+  text-align: center;
+  font-size: 11.5px;
+  color: #888;
+}
+
+/* ── PRINT MEDIA QUERY ── */
+@media print {
+  /* Hide everything except pdf-page */
+  body * { visibility: hidden; }
+  .pdf-page, .pdf-page * { visibility: visible; }
+  .pdf-page {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    margin: 0;
+    padding: 40px 48px;
+    box-shadow: none;
+    border: none;
+  }
+  .no-print { display: none !important; }
+
+  /* Force background colors to print */
+  .pdf-table thead tr { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .pdf-grand-total     { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
