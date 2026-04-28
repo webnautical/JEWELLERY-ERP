@@ -2,10 +2,9 @@ import React, { useState } from "react";
 import {
   useGetRateDashboardQuery,
   useCreateRateMutation,
-} from "../../../../api/RatesAPI";
-import { showSuccess, showError, timeAgo } from "../../../../helper/Utility";
+} from "../../../api/RatesAPI";
+import { showSuccess, showError, timeAgo, CURRENCY_SIGN } from "../../../helper/Utility";
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 const MATERIAL_ICON = {
   Gold: "🥇",
   Silver: "⚪",
@@ -19,13 +18,10 @@ const MATERIAL_ICON = {
 const getIcon = (name) => MATERIAL_ICON[name] || "💰";
 
 const fmt = (val) =>
-  val != null ? `₹${Number(val).toLocaleString("en-IN")}` : "—";
+  val != null ? `${CURRENCY_SIGN}${Number(val)}` : "—";
 
-// ── Spotlight card (top 4 prominent ones) ────────────────────────────────────
 const SpotlightCard = ({ rate }) => {
   const up = rate.change_direction === "up";
-  const down = rate.change_direction === "down";
-
   return (
     <div className="rate-spotlight-card">
       <div className="rsc-header">

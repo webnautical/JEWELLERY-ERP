@@ -1,9 +1,11 @@
 import StyleForm from "../user/pages/admin/rdteam/Styleform";
 import Styles from "../user/pages/admin/rdteam/Styles";
-import Assets from "../user/pages/admin/sourcing/Assets";
-import RatesDashboard from "../user/pages/admin/sourcing/Ratesdashboard";
+import Assets from "../user/pages/sourcing/Assets";
+import RatesDashboard from "../user/pages/sourcing/Ratesdashboard";
 import UserForm from "../user/pages/admin/users/Userform";
 import Users from "../user/pages/admin/users/Users";
+import Profile from "../user/pages/common/Profile";
+import Resetpassword from "../user/pages/common/Resetpassword";
 import EstimateForm from "../user/pages/costing_team/EstimateForm";
 import EstimateRequests from "../user/pages/costing_team/EstimateRequests";
 import Dashboard from "../user/pages/Dashboard";
@@ -18,15 +20,15 @@ import InquiryDetail from "../user/pages/sales_executive/inquiries/Inquirydetail
 import InquiryForm from "../user/pages/sales_executive/inquiries/InquiryForm";
 import QuotePDF from "../user/pages/sales_executive/quotes/Quotepdf";
 import Quotes from "../user/pages/sales_executive/quotes/Quotes";
-
-
+import Rate from "../user/pages/sourcing/Rate";
 
 export const appMenu = [
-    // COMMON
+
+    // ── COMMON ──────────────────────────────────────────────────────────────
     {
         title: "Dashboard",
-        icon: "dashboard",
-        roles: ["admin", 'rd_team', 'sourcing_team', 'sales_executive', 'costing_team'],
+        icon: "bi-speedometer2",
+        roles: ["admin", "rd_team", "sourcing_team", "sales_executive", "costing_team"],
         type: "single",
         children: [
             {
@@ -35,104 +37,123 @@ export const appMenu = [
                 label: "Main Dashboard",
                 icon: "bi-speedometer2",
             },
+            {
+                path: "/profile",
+                element: Profile,
+                icon: "bi-person-circle",
+                hideInMenu: true,
+            },
+            {
+                path: "/reset-password",
+                element: Resetpassword,
+                icon: "bi-person-circle",
+                hideInMenu: true,
+            },
         ],
     },
-    // ADMIN ROUTES AND MENU
+
+    // ── ADMIN ────────────────────────────────────────────────────────────────
     {
         title: "User Management",
-        icon: "users",
+        icon: "bi-people-fill",
         roles: ["admin"],
         children: [
             {
                 path: "/users",
                 element: Users,
                 label: "Users",
-                icon: "bi-people",
+                icon: "bi-people-fill",
             },
             {
                 path: "/users/add",
                 element: UserForm,
-                label: "Users",
-                icon: "bi-people",
+                label: "Add User",
+                icon: "bi-person-plus-fill",
                 hideInMenu: true,
             },
             {
                 path: "/users/edit/:id",
                 element: UserForm,
-                label: "Users",
-                icon: "bi-people",
+                label: "Edit User",
+                icon: "bi-person-gear",
                 hideInMenu: true,
             },
         ],
     },
     {
         title: "General Settings",
-        icon: "users",
+        icon: "bi-gear-fill",
         roles: ["admin"],
         children: [
             {
                 path: "/general-setting",
                 element: Users,
                 label: "Update Profile",
-                icon: "bi-people",
+                icon: "bi-gear-fill",
             },
         ],
     },
 
-    // RD TEAM ROUTES AND MENU
+    // ── RD TEAM ──────────────────────────────────────────────────────────────
     {
         title: "Styles",
-        icon: "styles",
+        icon: "bi-gem",
         roles: ["rd_team"],
         children: [
             {
                 path: "/styles",
                 element: Styles,
                 label: "Styles",
-                icon: "bi-palette",
+                icon: "bi-gem",
             },
             {
                 path: "/styles/add",
                 element: StyleForm,
-                label: "Add Styles",
-                icon: "bi-palette",
+                label: "Add Style",
+                icon: "bi-gem",
                 hideInMenu: true,
             },
             {
                 path: "/styles/edit/:id",
                 element: StyleForm,
-                label: "Add Styles",
-                icon: "bi-palette",
+                label: "Edit Style",
+                icon: "bi-gem",
                 hideInMenu: true,
             },
         ],
     },
 
-    // SOURCING TEAM ROUTES AND MENU
+    // ── SOURCING TEAM ────────────────────────────────────────────────────────
     {
         title: "Rates",
-        icon: "styles",
+        icon: "bi-graph-up-arrow",
         roles: ["sourcing_team"],
         children: [
             {
                 path: "/rates-dashboard",
                 element: RatesDashboard,
                 label: "Dashboard",
-                icon: "bi-palette",
+                icon: "bi-graph-up-arrow",
             },
             {
                 path: "/assets",
                 element: Assets,
                 label: "Assets",
-                icon: "bi-palette",
+                icon: "bi-box-seam-fill",
+            },
+            {
+                path: "/rate",
+                element: Rate,
+                label: "Add Rate",
+                icon: "bi-currency-exchange",
             },
         ],
     },
 
-    // sales_executive ROUTES AND MENU
+    // ── SALES EXECUTIVE ──────────────────────────────────────────────────────
     {
-        title: "Client",
-        icon: "styles",
+        title: "Sales",
+        icon: "bi-briefcase-fill",
         roles: ["sales_executive"],
         type: "single",
         children: [
@@ -140,98 +161,95 @@ export const appMenu = [
                 path: "/clients",
                 element: Clients,
                 label: "Clients",
-                icon: "bi-palette",
+                icon: "bi-building",
             },
             {
                 path: "/client-form",
                 element: ClientForm,
-                label: "Dashboard",
-                icon: "bi-palette",
+                label: "Client Form",
+                icon: "bi-building-add",
                 hideInMenu: true,
             },
             {
                 path: "/inquiries",
                 element: Inquiries,
                 label: "Inquiries",
-                icon: "bi-palette",
+                icon: "bi-chat-left-text-fill",
             },
             {
                 path: "/inquiry-form",
                 element: InquiryForm,
-                label: "Dashboard",
-                icon: "bi-palette",
+                label: "Inquiry Form",
+                icon: "bi-chat-left-text",
                 hideInMenu: true,
             },
             {
                 path: "/inquiry-detail/:id",
                 element: InquiryDetail,
-                label: "Dashboard",
-                icon: "bi-palette",
+                label: "Inquiry Detail",
+                icon: "bi-chat-left-text",
                 hideInMenu: true,
             },
             {
                 path: "/bom",
                 element: BOMs,
                 label: "BOM",
-                icon: "bi-palette",
+                icon: "bi-list-check",
             },
             {
                 path: "/bom-form",
                 element: BOMForm,
-                label: "BOM",
-                icon: "bi-palette",
+                label: "BOM Form",
+                icon: "bi-list-check",
                 hideInMenu: true,
             },
             {
                 path: "/estimates",
                 element: Estimates,
                 label: "Estimates",
-                icon: "bi-palette",
+                icon: "bi-calculator-fill",
             },
             {
                 path: "/estimate-detail/:id",
                 element: EstimateDetail,
                 label: "Estimate Detail",
-                icon: "bi-palette",
+                icon: "bi-calculator",
                 hideInMenu: true,
             },
             {
                 path: "/quotes",
                 element: Quotes,
                 label: "Quotes",
-                icon: "bi-palette",
+                icon: "bi-file-earmark-text-fill",
             },
-
             {
                 path: "/quote-pdf/:id",
                 element: QuotePDF,
                 label: "Quote PDF",
-                icon: "bi-palette",
+                icon: "bi-file-earmark-pdf-fill",
                 hideInMenu: true,
             },
-
         ],
     },
 
-
-    // costing_team ROUTES AND MENU
+    // ── COSTING TEAM ─────────────────────────────────────────────────────────
     {
-        title: "costing_team",
-        icon: "styles",
+        title: "Costing",
+        icon: "bi-calculator-fill",
         roles: ["costing_team"],
         type: "single",
         children: [
             {
                 path: "/estimate-requests",
                 element: EstimateRequests,
-                label: "Pending Estimate Requests",
-                icon: "bi-palette",
+                label: "Pending Requests",
+                icon: "bi-inbox-fill",
             },
             {
                 path: "/estimate-form",
                 element: EstimateForm,
-                label: "Dashboard",
-                icon: "bi-palette",
+                label: "Create Estimate",
+                icon: "bi-calculator-fill",
                 hideInMenu: true,
             },
         ],

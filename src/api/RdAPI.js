@@ -4,7 +4,7 @@ import baseQuery from '../app/apiBaseQuery';
 export const RdAPI = createApi({
     reducerPath: 'StyleAPI',
     baseQuery,
-    tagTypes: ['Styles'],
+    tagTypes: ['Styles','RDDashboard'],
     endpoints: (builder) => ({
 
         getAllStyles: builder.query({
@@ -12,6 +12,11 @@ export const RdAPI = createApi({
                 `style/getAllStyles?status=${status}&origin=${origin}&search=${search}&page=${page}&limit=${limit}`,
             providesTags: ['Styles'],
             keepUnusedDataFor: 0,
+        }),
+
+        getRDDashboard: builder.query({
+            query: () => 'style/getRDDashboard',
+            providesTags: ['RDDashboard'],
         }),
 
         getStyleById: builder.query({
@@ -47,4 +52,5 @@ export const {
     useGetStyleByIdQuery,
     useCreateUpdateStyleMutation,
     useArchiveStyleMutation,
+    useGetRDDashboardQuery
 } = RdAPI;

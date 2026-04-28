@@ -7,13 +7,11 @@ export const RatesAPI = createApi({
     tagTypes: ['Assets', 'Rates'],
     endpoints: (builder) => ({
 
-        // ── DASHBOARD ──────────────────────────────────────────────────────
         getRateDashboard: builder.query({
             query: () => 'sourcing/getRateDashboard',
             providesTags: ['Rates'],
         }),
 
-        // ── ASSETS ────────────────────────────────────────────────────────
         getAllAssets: builder.query({
             query: ({ status = '' } = {}) => {
                 const qs = status ? `?status=${status}` : '';
@@ -32,7 +30,6 @@ export const RatesAPI = createApi({
             invalidatesTags: ['Assets', 'Rates'],
         }),
 
-        // ── RATES ──────────────────────────────────────────────────────────
         createRate: builder.mutation({
             query: (body) => ({
                 url: 'sourcing/createRate',
@@ -40,15 +37,6 @@ export const RatesAPI = createApi({
                 body,
             }),
             invalidatesTags: ['Rates'],
-        }),
-
-        getAllAssets: builder.query({
-            query: ({ status = '' } = {}) => {
-                const qs = status ? `?status=${status}` : '';
-                return `sourcing/getAllAssets${qs}`;
-            },
-            providesTags: ['Assets'],
-            keepUnusedDataFor: 0,
         }),
 
     }),

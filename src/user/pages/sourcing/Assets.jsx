@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import {
   useGetAllAssetsQuery,
   useCreateUpdateAssetMutation,
-} from "../../../../api/RatesAPI";
+} from "../../../api/RatesAPI";
 import {
   showSuccess,
   showError,
   showConfirm,
-} from "../../../../helper/Utility";
+} from "../../../helper/Utility";
 
 const UNITS = ["gram", "carat", "piece"];
 

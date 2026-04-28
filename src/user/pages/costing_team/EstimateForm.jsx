@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useGetEstimateByIdQuery, useCreateEstimateMutation } from "../../../api/CostingAPI";
-import { showSuccess, showError, formatDate } from "../../../helper/Utility";
+import { showSuccess, showError, formatDate, CURRENCY_SIGN } from "../../../helper/Utility";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const fmt = (val) =>
-  val != null && val !== "" ? `₹${Number(val).toLocaleString("en-IN")}` : "—";
+  val != null && val !== "" ? `${CURRENCY_SIGN}${Number(val)}` : "—";
 
 const materialTypeBadge = (type) => {
   const map = {
@@ -256,7 +256,7 @@ const EstimateForm = () => {
 
             {/* Labor */}
             <div className="form-grp">
-              <label className="form-lbl">Labor Cost (₹) *</label>
+              <label className="form-lbl">Labor Cost ({CURRENCY_SIGN}) *</label>
               <input
                 className={`form-inp ${errs.laborCost ? "inp-error" : ""}`}
                 type="number"
@@ -270,7 +270,7 @@ const EstimateForm = () => {
 
             {/* Plating */}
             <div className="form-grp">
-              <label className="form-lbl">Plating Cost (₹) *</label>
+              <label className="form-lbl">Plating Cost ({CURRENCY_SIGN}) *</label>
               <input
                 className={`form-inp ${errs.platingCost ? "inp-error" : ""}`}
                 type="number"

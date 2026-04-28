@@ -44,13 +44,13 @@ export const Header = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const handleLogout = () =>{
+  const handleLogout = () => {
     localStorage.clear()
   }
 
   return (
     <div
-    className="header_outer"
+      className="header_outer"
       style={{
         height: "62px",
         background: "#000",
@@ -76,7 +76,7 @@ export const Header = () => {
       </h1>
 
       <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-        
+
         {/* SEARCH */}
         <div
           ref={wrapperRef}
@@ -105,58 +105,58 @@ export const Header = () => {
             }}
           ></i>
 
-       <div className={`notify-dropdown ${notifyOpen ? "show" : ""}`}>
-  <div className="notify-header">
-    <h6>Notifications</h6>
-    <span>3 New</span>
-  </div>
+          <div className={`notify-dropdown ${notifyOpen ? "show" : ""}`}>
+            <div className="notify-header">
+              <h6>Notifications</h6>
+              <span>3 New</span>
+            </div>
 
-  <div className="notify-list">
-    
-    <div className="notify-item unread">
-      <div className="notify-icon-circle blue">
-        <i className="bi bi-gear"></i>
-      </div>
-      <div className="notify-content">
-        <p>
-          Your Elite author Graphic Optimization <span>reward</span> is ready!
-        </p>
-        <small>Just 30 sec ago</small>
-      </div>
-   
-    </div>
+            <div className="notify-list">
 
-    <div className="notify-item highlight">
-      <img
-        src="https://randomuser.me/api/portraits/women/44.jpg"
-        alt=""
-        className="notify-avatar"
-      />
-      <div className="notify-content">
-        <p>
-          <strong>Angela Bernier</strong> answered to your comment on the cash
-          flow forecast's graph 🔔
-        </p>
-        <small>48 min ago</small>
-      </div>
-   
-    </div>
+              <div className="notify-item unread">
+                <div className="notify-icon-circle blue">
+                  <i className="bi bi-gear"></i>
+                </div>
+                <div className="notify-content">
+                  <p>
+                    Your Elite author Graphic Optimization <span>reward</span> is ready!
+                  </p>
+                  <small>Just 30 sec ago</small>
+                </div>
 
-    <div className="notify-item">
-      <div className="notify-icon-circle red">
-        <i className="bi bi-chat-dots"></i>
-      </div>
-      <div className="notify-content">
-        <p>
-          You have received <span>20</span> new messages in the conversation
-        </p>
-        <small>1 hour ago</small>
-      </div>
-   
-    </div>
+              </div>
 
-  </div>
-</div>
+              <div className="notify-item highlight">
+                <img
+                  src="https://randomuser.me/api/portraits/women/44.jpg"
+                  alt=""
+                  className="notify-avatar"
+                />
+                <div className="notify-content">
+                  <p>
+                    <strong>Angela Bernier</strong> answered to your comment on the cash
+                    flow forecast's graph 🔔
+                  </p>
+                  <small>48 min ago</small>
+                </div>
+
+              </div>
+
+              <div className="notify-item">
+                <div className="notify-icon-circle red">
+                  <i className="bi bi-chat-dots"></i>
+                </div>
+                <div className="notify-content">
+                  <p>
+                    You have received <span>20</span> new messages in the conversation
+                  </p>
+                  <small>1 hour ago</small>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
         </div>
 
         <div
@@ -178,10 +178,9 @@ export const Header = () => {
 
           <div className={`user-dropdown ${userOpen ? "show" : ""}`}>
             <ul>
-              <li>Profile</li>
-              <li>Settings</li>
-              <li>Billing</li>
-              <li><Link to={'/login'} onClick={()=>handleLogout()}>Logout</Link></li>
+              <li><Link to={'/profile'} className="text-white" style={{textDecoration : 'none'}}>Profile</Link></li>
+              <li><Link to={'/reset-password'} className="text-white" style={{textDecoration : 'none'}}>Change Password</Link></li>
+              <li><Link to={'/login'} onClick={() => handleLogout()}  className="text-white" style={{textDecoration : 'none'}}>Logout</Link></li>
             </ul>
           </div>
         </div>

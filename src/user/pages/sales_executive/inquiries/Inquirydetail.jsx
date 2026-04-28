@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useGetInquiryByIdQuery } from "../../../../api/SalesAPI";
-import { formatDate } from "../../../../helper/Utility";
+import { CURRENCY_SIGN, formatDate } from "../../../../helper/Utility";
 
 const STATUS_MAP = {
   new:         { cls: "rb-rd",         label: "New"         },
@@ -75,7 +75,7 @@ const InquiryDetail = () => {
               <InfoRow label="Client Phone" value={inq.client_phone} />
               <InfoRow label="Product"      value={inq.product_desc} />
               <InfoRow label="Quantity"     value={`${inq.quantity} pcs`} />
-              <InfoRow label="Target Price" value={inq.target_price ? `₹${Number(inq.target_price).toLocaleString("en-IN")} / pc` : "—"} />
+              <InfoRow label="Target Price" value={inq.target_price ? `${CURRENCY_SIGN}${Number(inq.target_price).toLocaleString("en-IN")} / pc` : "—"} />
               <InfoRow label="Required By"  value={inq.required_delivery ? formatDate(inq.required_delivery) : "—"} />
               <InfoRow label="Source"       value={SOURCE_LABELS[inq.source] || inq.source} />
               <InfoRow label="Assigned To"  value={inq.assigned_to_name} />
@@ -118,7 +118,7 @@ const InquiryDetail = () => {
                   {inq.quotes.map((q) => (
                     <tr key={q.id}>
                       <td style={{ fontWeight: 500, color: "var(--red)" }}>{q.quote_code}</td>
-                      <td>{q.total_amount ? `₹${Number(q.total_amount).toLocaleString("en-IN")}` : "—"}</td>
+                      <td>{q.total_amount ? `${CURRENCY_SIGN}${Number(q.total_amount).toLocaleString("en-IN")}` : "—"}</td>
                       <td><span className="role-badge rb-sales">{q.status}</span></td>
                       <td style={{ fontSize: 11.5, color: "var(--g500)" }}>{formatDate(q.created_at)}</td>
                     </tr>

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGetAllInquiriesQuery } from "../../../../api/SalesAPI";
-import { formatDate } from "../../../../helper/Utility";
+import { CURRENCY_SIGN, formatDate } from "../../../../helper/Utility";
 
 const STATUS_OPTIONS = [
   { value: "new",         label: "New",          cls: "rb-rd"         },
@@ -104,7 +104,7 @@ const Inquiries = () => {
                 </td>
                 <td style={{ fontWeight: 500 }}>{inq.quantity} pcs</td>
                 <td style={{ fontWeight: 500, color: "var(--g700)" }}>
-                  {inq.target_price ? `₹${Number(inq.target_price).toLocaleString("en-IN")}` : "—"}
+                  {inq.target_price ? `${CURRENCY_SIGN}${Number(inq.target_price).toLocaleString("en-IN")}` : "—"}
                 </td>
                 <td style={{ fontSize: 12, color: "var(--g500)" }}>
                   {SOURCE_LABELS[inq.source] || inq.source || "—"}
