@@ -4,8 +4,15 @@ import baseQuery from '../app/apiBaseQuery';
 export const SalesAPI = createApi({
     reducerPath: 'SalesAPI',
     baseQuery,
-    tagTypes: ['Clients', 'BOMs', 'Inquiries', 'Quotes'],
+    tagTypes: ['Clients', 'BOMs', 'Inquiries', 'Quotes', 'SalesDashboard'],
     endpoints: (builder) => ({
+
+        // ── DASHBOARD ──────────────────────────────────────────────────────
+        getSalesDashboard: builder.query({
+            query: () => 'sales/getSalesDashboard',
+            providesTags: ['SalesDashboard'],
+        }),
+
 
         // ── CLIENTS ────────────────────────────────────────────────────────
         getAllClients: builder.query({
@@ -120,4 +127,5 @@ export const {
     useGetAllQuotesQuery,
     useGetQuoteByIdQuery,
     useCreateQuoteMutation,
+    useGetSalesDashboardQuery
 } = SalesAPI;

@@ -4,8 +4,13 @@ import baseQuery from '../app/apiBaseQuery';
 export const CostingAPI = createApi({
     reducerPath: 'CostingAPI',
     baseQuery,
-    tagTypes: ['Estimates'],
+    tagTypes: ['Estimates', 'CostingDashboard'],
     endpoints: (builder) => ({
+
+        getCostingDashboard: builder.query({
+            query: () => 'costing/getCostingDashboard',
+            providesTags: ['CostingDashboard'],
+        }),
 
         // Pending requests — costing team inbox
         getPendingEstimateRequests: builder.query({
@@ -20,7 +25,7 @@ export const CostingAPI = createApi({
             query: ({ requestStatus = '', page = 1, limit = 10 } = {}) => {
                 const params = new URLSearchParams();
                 if (requestStatus) params.append('requestStatus', requestStatus);
-                params.append('page',  page);
+                params.append('page', page);
                 params.append('limit', limit);
                 return `costing/getAllEstimates?${params.toString()}`;
             },
@@ -52,4 +57,5 @@ export const {
     useGetAllEstimatesQuery,
     useGetEstimateByIdQuery,
     useCreateEstimateMutation,
+    useGetCostingDashboardQuery
 } = CostingAPI;

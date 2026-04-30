@@ -3,7 +3,12 @@ import {
   useGetRateDashboardQuery,
   useCreateRateMutation,
 } from "../../../api/RatesAPI";
-import { showSuccess, showError, timeAgo, CURRENCY_SIGN } from "../../../helper/Utility";
+import {
+  showSuccess,
+  showError,
+  timeAgo,
+  CURRENCY_SIGN,
+} from "../../../helper/Utility";
 
 const MATERIAL_ICON = {
   Gold: "🥇",
@@ -17,8 +22,7 @@ const MATERIAL_ICON = {
 
 const getIcon = (name) => MATERIAL_ICON[name] || "💰";
 
-const fmt = (val) =>
-  val != null ? `${CURRENCY_SIGN}${Number(val)}` : "—";
+const fmt = (val) => (val != null ? `${CURRENCY_SIGN}${Number(val)}` : "—");
 
 const SpotlightCard = ({ rate }) => {
   const up = rate.change_direction === "up";
@@ -89,7 +93,7 @@ const RateRow = ({ rate, idx, onSave, saving }) => {
 };
 
 // ── Main Dashboard ────────────────────────────────────────────────────────────
-const RatesDashboard = () => {
+const SourcingDashboard = () => {
   const { data, isLoading, refetch } = useGetRateDashboardQuery();
   const [createRate, { isLoading: saving }] = useCreateRateMutation();
 
@@ -264,4 +268,4 @@ const RatesDashboard = () => {
   );
 };
 
-export default RatesDashboard;
+export default SourcingDashboard;

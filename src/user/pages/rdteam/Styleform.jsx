@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { showSuccess, showError, imgBaseURL } from "../../../../helper/Utility";
+// import { showSuccess, showError, imgBaseURL } from "../../../../helper/Utility";
+
 import {
-  useGetStyleByIdQuery,
   useCreateUpdateStyleMutation,
-} from "../../../../api/RdAPI";
+  useGetStyleByIdQuery,
+} from "../../../api/RdAPI";
+import { showSuccess, showError, imgBaseURL } from "../../../helper/Utility";
 
 const ORIGIN_OPTIONS = [
   { value: "in_house", label: "In-House" },

@@ -3,14 +3,14 @@ import { useNavigate } from "react-router-dom";
 import {
   useGetAllStylesQuery,
   useArchiveStyleMutation,
-} from "../../../../api/RdAPI";
+} from "../../../api/RdAPI";
 import {
   showConfirm,
   showSuccess,
   showError,
   imgBaseURL,
   formatDate,
-} from "../../../../helper/Utility";
+} from "../../../helper/Utility";
 
 const ORIGIN_OPTIONS = [
   { value: "in_house", label: "In-House" },

@@ -7,8 +7,8 @@ import AuthLayout from "./layout/AuthLayout";
 import Login from "./auth/Login";
 import Users from "./user/pages/admin/users/Users";
 import UserForm from "./user/pages/admin/users/Userform";
-import Styles from "./user/pages/admin/rdteam/Styles";
-import StyleForm from "./user/pages/admin/rdteam/Styleform";
+import Styles from "./user/pages/rdteam/Styles";
+import StyleForm from "./user/pages/rdteam/Styleform";
 import { appMenu } from "./routes/routesConfig";
 import Unauthorized from "./errorPage/Unauthorized";
 import ProtectedRoute from "./routes/ProtectedRoute";
@@ -32,10 +32,12 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-            ))
+            )),
           )}
-          <Route path="/unauthorized" element={<UserLayout cmp={Unauthorized} />} />
-
+          <Route
+            path="/unauthorized"
+            element={<UserLayout cmp={Unauthorized} />}
+          />
         </Routes>
       </BrowserRouter>
     </>

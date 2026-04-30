@@ -1729,3 +1729,15 @@ background: #1e1e1e;
     padding: 3px 8px;
     border-radius: 4px;
 }
+
+
+/* ── Add to App.css — badge inside button ── */
+.dash-badge {
+    background: #fff;
+    color: var(--red);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 20px;
+    margin-left: 6px;
+}
