@@ -6,6 +6,7 @@ import {
 } from "../../../api/UserAPI";
 import { showSuccess, showError, authUser } from "../../../helper/Utility";
 import LoadingBTN from "../../../components/LoadingBTN";
+import { useTranslation } from "../../../helper/useTranslation";
 
 const INIT = { firstName: "", lastName: "", email: "", phone: "" };
 const INIT_ERRS = { firstName: "", lastName: "", email: "" };
@@ -13,6 +14,7 @@ const INIT_ERRS = { firstName: "", lastName: "", email: "" };
 const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
 const Profile = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const authInfo = authUser()
     const id = authInfo?.id;
@@ -37,14 +39,14 @@ const Profile = () => {
     const validate = (name, value) => {
         switch (name) {
             case "firstName":
-                return !value.trim() ? "First name is required." : "";
+                return !value.trim() ? t("firstNameRequired") : "";
             case "lastName":
-                return !value.trim() ? "Last name is required." : "";
+                return !value.trim() ? t("lastNameRequired") : "";
             case "email":
                 return !value.trim()
-                    ? "Email is required."
+                    ? t("emailRequired")
                     : !isValidEmail(value)
-                        ? "Enter a valid email address."
+                        ? t("emailInvalid")
                         : "";
             default:
                 return "";
@@ -81,10 +83,10 @@ const Profile = () => {
         if (!validateAll()) return;
         try {
             await updateUser({ id, ...form }).unwrap();
-            showSuccess("User updated successfully", "Updated");
+            showSuccess(t("userUpdatedSuccess"), "Updated");
         } catch (err) {
             showError(
-                err?.data?.message || "Something went wrong. Please try again.",
+                err?.data?.message || t('somethingWentWrong'),
             );
         }
     };
@@ -93,7 +95,7 @@ const Profile = () => {
         return (
             <div className="page-wrapper">
                 <div style={{ padding: 40, textAlign: "center", color: "var(--g500)" }}>
-                    Loading user...
+                   {t("Loading...")}
                 </div>
             </div>
         );
@@ -104,14 +106,11 @@ const Profile = () => {
             {/* PAGE HEADER */}
             <div className="pg-header">
                 <div>
-                    <div className="pg-title"> Profile </div>
-                    <div className="pg-sub">
-                        Details for {form.firstName} {form.lastName}
-                    </div>
+                    <div className="pg-title"> {t('profile')} </div>
                 </div>
                 <div className="btn-row">
                     <button className="btn btn-outline" onClick={() => navigate(-1)}>
-                        ← Back to Users
+                        ← {t("Back to Users")}
                     </button>
                 </div>
             </div>
@@ -122,7 +121,7 @@ const Profile = () => {
                 <div className="form-grid">
                     {/* First Name */}
                     <div className="form-grp">
-                        <label className="form-lbl">First Name *</label>
+                        <label className="form-lbl">{t('First Name')} *</label>
                         <input
                             className={`form-inp ${errs.firstName ? "inp-error" : ""}`}
                             name="firstName"
@@ -138,7 +137,7 @@ const Profile = () => {
 
                     {/* Last Name */}
                     <div className="form-grp">
-                        <label className="form-lbl">Last Name *</label>
+                        <label className="form-lbl">{t('Last Name')} *</label>
                         <input
                             className={`form-inp ${errs.lastName ? "inp-error" : ""}`}
                             name="lastName"
@@ -152,7 +151,7 @@ const Profile = () => {
 
                     {/* Email */}
                     <div className="form-grp">
-                        <label className="form-lbl">Email *</label>
+                        <label className="form-lbl">{t('Email')} *</label>
                         <input
                             className={`form-inp ${errs.email ? "inp-error" : ""}`}
                             name="email"
@@ -179,7 +178,7 @@ const Profile = () => {
                                 <div
                                     style={{ fontSize: 11, color: "var(--g500)", marginTop: 4 }}
                                 >
-                                    Email cannot be changed after creation.
+                                    {t("emailCannotChange")}
                                 </div>
                             )
                         )}
@@ -187,7 +186,7 @@ const Profile = () => {
 
                     {/* Phone — optional, no validation */}
                     <div className="form-grp">
-                        <label className="form-lbl">Phone</label>
+                        <label className="form-lbl">{t("Phone")}</label>
                         <input
                             className="form-inp"
                             name="phone"
@@ -202,14 +201,14 @@ const Profile = () => {
 
                 <div className="form-actions">
                     <button className="btn btn-outline" onClick={() => navigate(-1)}>
-                        Cancel
+                        {t("Cancel")}
                     </button>
                     {
                         updating ?
                             <LoadingBTN />
                             :
                             <button className="btn btn-primary" onClick={handleSubmit}>
-                                    Update User
+                                {t("Update")}
                             </button>
                     }
                 </div>

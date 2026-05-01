@@ -21,6 +21,9 @@ import InquiryForm from "../user/pages/sales_executive/inquiries/InquiryForm";
 import QuotePDF from "../user/pages/sales_executive/quotes/Quotepdf";
 import Quotes from "../user/pages/sales_executive/quotes/Quotes";
 import Rate from "../user/pages/sourcing/Rate";
+import DataListing from "../user/pages/admin/data_listing/DataListing";
+import DataDetail from "../user/pages/admin/data_listing/DataDetail";
+import { adminListingRoutes } from "./adminListingRoutes";
 
 export const appMenu = [
 
@@ -81,12 +84,24 @@ export const appMenu = [
         ],
     },
     {
+        roles: ["admin"],
+        type: "single",
+        children: [
+            ...adminListingRoutes,
+            {
+                path: "/dataList/:page/view/:id",
+                element: DataDetail,
+                hideInMenu: true,
+            },
+        ],
+    },
+    {
         title: "General Settings",
         icon: "bi-gear-fill",
         roles: ["admin"],
         children: [
             {
-                path: "/general-setting",
+                path: "/profile",
                 element: Users,
                 label: "Update Profile",
                 icon: "bi-gear-fill",
