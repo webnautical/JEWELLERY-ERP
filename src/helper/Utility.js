@@ -17,6 +17,17 @@ const getCurrencySignFun = () => {
 
 export const CURRENCY_SIGN = getCurrencySignFun()
 
+export const formatLabel = (str) => {
+    if (!str) return "";
+
+    return str
+        .replace(/([a-z])([A-Z])/g, "$1 $2")
+        .replace(/[_\-]+/g, " ")                
+        .replace(/\s+/g, " ")                   
+        .trim()
+        .replace(/\b\w/g, (c) => c.toUpperCase()); 
+};
+
 export const getRemainingDays = (expiryDate) => {
     const now = new Date();
     const expiry = new Date(expiryDate);

@@ -6,6 +6,7 @@ import {
   useUpdateUserMutation,
 } from "../../../../api/UserAPI";
 import { showSuccess, showError } from "../../../../helper/Utility";
+import { useTranslation } from "../../../../helper/useTranslation";
 
 const ROLES = [
   { value: "rd_team", label: "RD Team" },
@@ -24,6 +25,8 @@ const INIT_ERRS = { firstName: "", lastName: "", email: "", role: "" };
 const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
 const UserForm = () => {
+    const { t } = useTranslation();
+  
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = Boolean(id);
@@ -54,17 +57,17 @@ const UserForm = () => {
   const validate = (name, value) => {
     switch (name) {
       case "firstName":
-        return !value.trim() ? "First name is required." : "";
+        return !value.trim() ? t("firstNameRequired") : "";
       case "lastName":
-        return !value.trim() ? "Last name is required." : "";
+        return !value.trim() ? t("lastNameRequired") : "";
       case "email":
         return !value.trim()
-          ? "Email is required."
+          ? t("emailRequired")
           : !isValidEmail(value)
-            ? "Enter a valid email address."
+            ? t("emailInvalid")
             : "";
       case "role":
-        return !value ? "Please select a role." : "";
+        return !value ? t("roleRequired") : "";
       default:
         return "";
     }
@@ -103,18 +106,18 @@ const UserForm = () => {
     try {
       if (isEdit) {
         await updateUser({ id, ...form }).unwrap();
-        showSuccess("User updated successfully!", "Updated");
+        showSuccess(t("userUpdatedSuccess"), "Updated");
       } else {
         await createUser(form).unwrap();
         showSuccess(
-          "User created successfully! Login credentials sent via email.",
+          t("userCreatedSuccess"),
           "User Created",
         );
       }
       navigate("/users");
     } catch (err) {
       showError(
-        err?.data?.message || "Something went wrong. Please try again.",
+        err?.data?.message || t('somethingWentWrong'),
       );
     }
   };
@@ -123,7 +126,7 @@ const UserForm = () => {
     return (
       <div className="page-wrapper">
         <div style={{ padding: 40, textAlign: "center", color: "var(--g500)" }}>
-          Loading user...
+          {t("Loading...")}
         </div>
       </div>
     );
@@ -135,12 +138,12 @@ const UserForm = () => {
       <div className="pg-header">
         <div>
           <div className="pg-title">
-            {isEdit ? "Edit User" : "Add New User"}
+            {isEdit ? t("Edit User") : t("Add New User")}
           </div>
           <div className="pg-sub">
             {isEdit
               ? `Updating details for ${form.firstName} ${form.lastName}`
-              : "Create a new user and assign their role."}
+              : t('createUserRole')}
           </div>
         </div>
         <div className="btn-row">
@@ -148,34 +151,27 @@ const UserForm = () => {
             className="btn btn-outline"
             onClick={() => navigate("/users")}
           >
-            ← Back to Users
+            ← {t("Back to Users")}
           </button>
         </div>
       </div>
 
       {/* FORM CARD */}
       <div className="form-panel">
-        <div className="form-panel-header">
-          <div className="form-panel-title">
-            {isEdit ? "Edit User Details" : "New User Details"}
-          </div>
-        </div>
 
         {!isEdit && (
           <div className="info-box" style={{ margin: "0 0 16px" }}>
-            ℹ️ User will receive a system-generated email with login credentials
-            and must set a new password on first login.
+            ℹ️ {t("credentialsInfo")}
           </div>
         )}
 
         <div className="form-grid">
           {/* First Name */}
           <div className="form-grp">
-            <label className="form-lbl">First Name *</label>
+            <label className="form-lbl">{t('First Name')} *</label>
             <input
               className={`form-inp ${errs.firstName ? "inp-error" : ""}`}
               name="firstName"
-              placeholder="e.g. Johh"
               value={form.firstName}
               onChange={handleChange}
               onBlur={handleBlur}
@@ -187,11 +183,10 @@ const UserForm = () => {
 
           {/* Last Name */}
           <div className="form-grp">
-            <label className="form-lbl">Last Name *</label>
+            <label className="form-lbl">{t('Last Name')} *</label>
             <input
               className={`form-inp ${errs.lastName ? "inp-error" : ""}`}
               name="lastName"
-              placeholder="e.g. Dhire"
               value={form.lastName}
               onChange={handleChange}
               onBlur={handleBlur}
@@ -201,12 +196,11 @@ const UserForm = () => {
 
           {/* Email */}
           <div className="form-grp">
-            <label className="form-lbl">Email *</label>
+            <label className="form-lbl">{t('Email')} *</label>
             <input
               className={`form-inp ${errs.email ? "inp-error" : ""}`}
               name="email"
               type="email"
-              placeholder="john@cattivo.in"
               value={form.email}
               onChange={handleChange}
               onBlur={handleBlur}
@@ -236,7 +230,7 @@ const UserForm = () => {
 
           {/* Phone — optional, no validation */}
           <div className="form-grp">
-            <label className="form-lbl">Phone</label>
+            <label className="form-lbl">{t("Phone")}</label>
             <input
               className="form-inp"
               name="phone"
@@ -248,7 +242,7 @@ const UserForm = () => {
 
           {/* Role */}
           <div className="form-grp">
-            <label className="form-lbl">Role *</label>
+            <label className="form-lbl">{t('Role')} *</label>
             <select
               className={`form-select ${errs.role ? "inp-error" : ""}`}
               name="role"
@@ -266,7 +260,7 @@ const UserForm = () => {
                   : {}
               }
             >
-              <option value="">Select role...</option>
+              <option value="">{t('selectRole')}</option>
               {ROLES.map((r) => (
                 <option key={r.value} value={r.value}>
                   {r.label}
@@ -292,7 +286,7 @@ const UserForm = () => {
             className="btn btn-outline"
             onClick={() => navigate("/users")}
           >
-            Cancel
+            {t('Cancel')}
           </button>
           <button
             className="btn btn-primary"
@@ -300,10 +294,10 @@ const UserForm = () => {
             disabled={creating || updating}
           >
             {creating || updating
-              ? "Saving..."
+              ? t("loading")
               : isEdit
-                ? "💾 Update User"
-                : "💾 Save User"}
+                ? t("update")
+                : t('save')}
           </button>
         </div>
       </div>

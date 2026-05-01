@@ -1741,3 +1741,35 @@ background: #1e1e1e;
     border-radius: 20px;
     margin-left: 6px;
 }
+
+/* detail grid */
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0;
+}
+
+.detail-item {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+
+.detail-item:nth-child(odd):last-child {
+  grid-column: span 2;
+}
+
+.detail-label {
+  font-size: 11px;
+  color: var(--g500);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 4px;
+}
+
+.detail-value {
+  font-size: 13.5px;
+  color: var(--g900);
+  font-weight: 400;
+}

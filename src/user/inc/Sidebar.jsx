@@ -4,10 +4,13 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { authUser } from '../../helper/Utility';
 import { SVGCollaboration, SVGDashboard, SVGInsights, SVGSales } from '../../helper/svgIcon';
 import { appMenu } from '../../routes/routesConfig';
+import { useTranslation } from '../../helper/useTranslation';
 
 const Sidebar = () => {
   const AUTH_LOCAL_INFO = authUser()
   const role = AUTH_LOCAL_INFO?.role;
+    const { t } = useTranslation();
+
   const location = useLocation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 992);
@@ -99,7 +102,7 @@ const Sidebar = () => {
                 margin: 0,
               }}
             >
-              {title}
+              {t(title)} 
             </p>
           </div>
 
@@ -126,10 +129,11 @@ const Sidebar = () => {
   };
 
   const NavItem = ({ item }) => {
-    const isActive = location.pathname === item.path;
+    const toPath = item.navPath || item.path;
+    const isActive = location.pathname === toPath;
     return (
       <NavLink
-        to={item.path}
+        to={toPath}
         onClick={closeSidebar}
         style={{ textDecoration: 'none', display: 'block', marginBottom: '2px' }}
       >
@@ -176,7 +180,7 @@ const Sidebar = () => {
               transition: 'all 0.2s ease',
             }}
           />
-          <span style={{ flex: 1 }}>{item.label}</span>
+          <span style={{ flex: 1 }}>{t(item.label)} </span>
           {item.badge && (
             <span
               style={{
@@ -284,7 +288,6 @@ const Sidebar = () => {
                 ));
             }
 
-            // ✅ ACCORDION MENU
             const isOpen = openIndexes.includes(index);
 
             return (

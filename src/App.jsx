@@ -12,19 +12,22 @@ import StyleForm from "./user/pages/rdteam/Styleform";
 import { appMenu } from "./routes/routesConfig";
 import Unauthorized from "./errorPage/Unauthorized";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import useNetworkStatus from "./hooks/useNetworkStatus";
+import NoInternet from "./errorPage/NoInternet";
+import PageNotFound from "./errorPage/PageNotFound";
 
 function App() {
+  useNetworkStatus();
   return (
     <>
-      <BrowserRouter>
         <Routes>
           <Route path="/" element={<AuthLayout cmp={Login} />} />
           <Route path="/login" element={<AuthLayout cmp={Login} />} />
 
-          {appMenu.map((menu) =>
-            menu.children.map((route, i) => (
+          {appMenu?.map((menu, menuIdx) =>
+            menu?.children?.map((route, i) => (
               <Route
-                key={i}
+                key={`${menuIdx}-${i}`}
                 path={route.path}
                 element={
                   <ProtectedRoute allowedRoles={menu.roles}>
@@ -34,12 +37,10 @@ function App() {
               />
             )),
           )}
-          <Route
-            path="/unauthorized"
-            element={<UserLayout cmp={Unauthorized} />}
-          />
+          <Route path="/unauthorized" element={<UserLayout cmp={Unauthorized} />} />
+          <Route path="/no-internet" element={<UserLayout cmp={NoInternet} />} />
+          <Route path="/*" element={<UserLayout cmp={PageNotFound} />} />
         </Routes>
-      </BrowserRouter>
     </>
   );
 }

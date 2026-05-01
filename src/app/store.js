@@ -2,7 +2,7 @@ import { configureStore, combineReducers, createAction } from '@reduxjs/toolkit'
 import { AuthAPI } from '../api/auth/AuthAPI';
 import { UserAPI } from '../api/UserAPI';
 import { RdAPI } from '../api/RdAPI';
-import chatReducer from '../api/chatSlice';
+import globalReducer from '../api/globalSlice';
 import { setupListeners } from '@reduxjs/toolkit/query';
 import { RatesAPI } from '../api/Ratesapi';
 import { SalesAPI } from '../api/SalesAPI';
@@ -12,7 +12,7 @@ import { AdminAPI } from '../api/AdminAPI';
 export const resetAllState = createAction('RESET_ALL');
 
 const appReducer = combineReducers({
-  chat: chatReducer,
+  global: globalReducer,
   [AuthAPI.reducerPath]: AuthAPI.reducer,
   [UserAPI.reducerPath]: UserAPI.reducer,
   [RdAPI.reducerPath]: RdAPI.reducer,
