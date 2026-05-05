@@ -1,18 +1,20 @@
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useGetTableDataQuery } from "../../../../api/AdminAPI";
-import { formatLabel } from "../../../../helper/Utility";
+import { formatLabel, showError } from "../../../../helper/Utility";
 import { useTranslation } from "../../../../helper/useTranslation";
+import { useLazyMarkAllNotificationsReadQuery, useLazyMarkNotificationReadQuery } from "../../../../api/CommonAPI";
+import LoadingBTN from './../../../../components/LoadingBTN';
 
 const DataListing = () => {
-    const { t } = useTranslation();
-  
+  const { t } = useTranslation();
   const params = useParams();
   const tableName = params.page;
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const limit = 10;
-
+  const [markRead] = useLazyMarkNotificationReadQuery();
+  const [markAllRead, { isLoading: isMarkingAll }] = useLazyMarkAllNotificationsReadQuery();
   const { data, isLoading, refetch } = useGetTableDataQuery({ table: tableName, page, limit });
 
   const dataList = data?.data || [];
@@ -60,7 +62,42 @@ const DataListing = () => {
 
     return String(value);
   };
+
+  const customeStyle = (row) => {
+    const data = {
+      background: row?.is_read ? "" : "rgb(218 201 202 / 72%)"
+    }
+    if (tableName == "notifications") {
+      return data
+    } else {
+      return {}
+    }
+  }
+
+  const handleRowClick = async (item) => {
+    if (tableName == "notifications") {
+      try {
+        await markRead(item.id).unwrap();
+        refetch()
+      } catch (err) {
+        showError(err?.data?.message || "Something went wrong.");
+      }
+    } else {
+      return;
+    }
+  };
+
+  const handleMarkAllRead = async () => {
+    try {
+      await markAllRead().unwrap();
+      refetch()
+    } catch (err) {
+      showError(err?.data?.message || "Something went wrong.");
+    }
+  };
+
   console.log("dataList", dataList)
+  console.log("tableName", tableName)
   return (
     <div className="page-wrapper">
       <div className="pg-header">
@@ -69,6 +106,15 @@ const DataListing = () => {
           <div className="pg-sub">{t('manageAll')} {t(formatLabel(tableName))} {t('records')}</div>
         </div>
         <div>
+          {
+            tableName == "notifications" &&
+            <>
+             { isMarkingAll ? <LoadingBTN className={"btn btn-primary mx-2"}/> :
+              <button className="btn btn-primary mx-2" onClick={handleMarkAllRead}>
+                Mark as all read
+              </button>}
+            </>
+          }
           <button type="button" className="btn btn-primary" onClick={() => refetch()}>
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 6 }}>
               <polyline points="23 4 23 10 17 10" />
@@ -118,7 +164,7 @@ const DataListing = () => {
               </tr>
             ) : (
               dataList?.map((row, idx) => (
-                <tr key={row.id ?? idx}>
+                <tr key={row.id ?? idx} style={{ ...customeStyle(row) }} onClick={() => handleRowClick(row)}>
                   <td style={{ color: "var(--g500)", fontSize: 11 }}>
                     {(page - 1) * limit + idx + 1}
                   </td>

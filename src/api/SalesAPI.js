@@ -5,6 +5,7 @@ export const SalesAPI = createApi({
     reducerPath: 'SalesAPI',
     baseQuery,
     tagTypes: ['Clients', 'BOMs', 'Inquiries', 'Quotes', 'SalesDashboard'],
+    keepUnusedDataFor: 0,
     endpoints: (builder) => ({
 
         // ── DASHBOARD ──────────────────────────────────────────────────────
@@ -83,6 +84,7 @@ export const SalesAPI = createApi({
 
         // ── QUOTES ─────────────────────────────────────────────────────────
         getAllQuotes: builder.query({
+            keepUnusedDataFor: 0,
             query: ({ status = [], clientId = '', inquiryId = '', search = '', page = 1, limit = 10 } = {}) => {
                 const params = new URLSearchParams();
                 if (Array.isArray(status)) {
@@ -98,7 +100,6 @@ export const SalesAPI = createApi({
                 return `sales/getAllQuotes?${params.toString()}`;
             },
             providesTags: ['Quotes'],
-            keepUnusedDataFor: 0,
         }),
         getQuoteById: builder.query({
             query: (id) => `sales/getQuoteById/${id}`,
