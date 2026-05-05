@@ -20,7 +20,6 @@ const ClientForm = () => {
 
   const [createUpdateClient, { isLoading: saving }] = useCreateUpdateClientMutation();
 
-  // ── If edit — prefill from location state (passed from listing) ────────────
   useEffect(() => {
     if (isEdit && window.history.state?.usr) {
       const c = window.history.state.usr;

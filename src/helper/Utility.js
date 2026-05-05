@@ -1,8 +1,12 @@
 import CryptoJS from "crypto-js";
 import Swal from 'sweetalert2';
 export const IS_LIVE = false
+import logo_white from '../assets/images/cattivo-logo.png';
+import logo_black from '../assets/images/black-logo.png';
 
-
+export const WEB_LOGO = () => {
+    return {white : logo_white, black : logo_black}
+}
 export const imgBaseURL = () => {
     return IS_LIVE ? "" : "https://cattivo.itworkshop.in"
 }

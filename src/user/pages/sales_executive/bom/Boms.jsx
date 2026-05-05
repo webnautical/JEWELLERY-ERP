@@ -388,17 +388,22 @@ const BOMs = () => {
                       >
                         View / Revise
                       </button>
-                      <button
-                        className="btn-sm"
-                        style={{
-                          background: "var(--red)",
-                          color: "#fff",
-                          border: "none",
-                        }}
-                        onClick={() => setModalBom(bom)}
-                      >
-                        Request Estimate
-                      </button>
+                      {
+                        bom?.inquiry_status == "bom_in_progress" ?
+                        <button
+                          className="btn-sm"
+                          style={{
+                            background: "var(--red)",
+                            color: "#fff",
+                            border: "none",
+                          }}
+                          onClick={() => setModalBom(bom)}
+                        >
+                          Request Estimate
+                        </button>
+                        :
+                        <>---</>
+                      }
                     </div>
                   </td>
                 </tr>

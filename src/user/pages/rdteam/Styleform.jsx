@@ -7,12 +7,8 @@ import {
   useGetStyleByIdQuery,
 } from "../../../api/RdAPI";
 import { showSuccess, showError, imgBaseURL } from "../../../helper/Utility";
+import LoadingBTN from './../../../components/LoadingBTN';
 
-const ORIGIN_OPTIONS = [
-  { value: "in_house", label: "In-House" },
-  { value: "client_design", label: "Client Design" },
-  { value: "market_sample", label: "Market Sample" },
-];
 
 const METAL_TYPES = [
   "Gold 18K",
@@ -29,7 +25,6 @@ const INIT = {
   metalType: "",
   metalWeight: "",
   plating: "",
-  origin: "",
   description: "",
   stoneDetails: [{ type: "", qty: "", unit: "carats", amount: "" }],
   cadDimensions: { length: "", width: "", surface_area: "" },
@@ -39,7 +34,6 @@ const INIT_ERRS = {
   styleName: "",
   metalType: "",
   metalWeight: "",
-  origin: "",
 };
 
 // ── Stone detail row component ────────────────────────────────────────────────
@@ -136,7 +130,6 @@ const StyleForm = () => {
         metalType: s.metal_type || "",
         metalWeight: s.metal_weight || "",
         plating: s.plating || "",
-        origin: s.origin || "",
         description: s.description || "",
         stoneDetails: s.stone_details?.length
           ? s.stone_details
@@ -189,8 +182,6 @@ const StyleForm = () => {
           : isNaN(value)
             ? "Must be a valid number."
             : "";
-      case "origin":
-        return !value ? "Origin is required." : "";
       default:
         return "";
     }
@@ -281,7 +272,6 @@ const StyleForm = () => {
   const removeCad = (idx) => {
     const item = cadPreview[idx];
     if (item.isExisting) {
-      // track original path for removal — name holds the original DB path
       setRemovedCadFiles((p) => [...p, item.originalPath]);
     } else {
       const newIdx = cadPreview
@@ -298,7 +288,6 @@ const StyleForm = () => {
       styleName: validate("styleName", form.styleName),
       metalType: validate("metalType", form.metalType),
       metalWeight: validate("metalWeight", form.metalWeight),
-      origin: validate("origin", form.origin),
     };
     setErrs(next);
     return Object.values(next).every((e) => !e);
@@ -313,7 +302,6 @@ const StyleForm = () => {
     fd.append("metalType", form.metalType);
     fd.append("metalWeight", form.metalWeight);
     fd.append("plating", form.plating);
-    fd.append("origin", form.origin);
     fd.append("description", form.description);
     fd.append(
       "stoneDetails",
@@ -393,25 +381,6 @@ const StyleForm = () => {
             {errs.styleName && (
               <div className="field-err">{errs.styleName}</div>
             )}
-          </div>
-
-          <div className="form-grp">
-            <label className="form-lbl">Origin *</label>
-            <select
-              className={`form-select ${errs.origin ? "inp-error" : ""}`}
-              name="origin"
-              value={form.origin}
-              onChange={handleChange}
-              onBlur={handleBlur}
-            >
-              <option value="">Select origin...</option>
-              {ORIGIN_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-            {errs.origin && <div className="field-err">{errs.origin}</div>}
           </div>
 
           <div className="form-grp">
@@ -712,6 +681,18 @@ const StyleForm = () => {
         <button className="btn btn-outline" onClick={() => navigate("/styles")}>
           Cancel
         </button>
+        {
+          saving ?
+            <LoadingBTN />
+            :
+            <button
+              className="btn btn-primary"
+              onClick={handleSubmit}
+              disabled={saving}
+            >
+              {saving ? "Saving..." : isEdit ? "Update Style" : "Save Style"}
+            </button>
+        }
         <button
           className="btn btn-primary"
           onClick={handleSubmit}

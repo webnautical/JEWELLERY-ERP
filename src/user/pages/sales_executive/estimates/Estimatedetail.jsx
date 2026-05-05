@@ -1,13 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useGetEstimateByIdQuery } from "../../../../api/CostingAPI";
-import { useCreateQuoteMutation } from "../../../../api/SalesAPI";
 import {
   formatDate,
   CURRENCY_SIGN,
-  showSuccess,
-  showError,
 } from "../../../../helper/Utility";
+import { CreateQuoteModal } from "../../../../components/CreateQuoteModal";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const fmt = (val) =>
@@ -79,15 +77,6 @@ const BreakdownRow = ({ label, value, isTotal, highlight }) => (
 );
 
 // ── Create Quote Modal ────────────────────────────────────────────────────────
-const CreateQuoteModal = ({ est, onClose, onSuccess }) => {
-  const [form, setForm] = useState({
-    marginPct: "25",
-    validUntil: "",
-    deliveryDate: "",
-    notes: "",
-    action: "draft",
-  });
-  const [errs, setErrs] = useState({ marginPct: "", validUntil: "" });
 
   const [createQuote, { isLoading: saving }] = useCreateQuoteMutation();
   const navigate = useNavigate()

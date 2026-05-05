@@ -1,10 +1,15 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useGetAllClientsQuery } from "../../../../api/SalesAPI";
+import { useGetAllClientsQuery, useUpdateClientTrustedMutation } from "../../../../api/SalesAPI";
+import { useTranslation } from "../../../../helper/useTranslation";
+import Pagination from "../../../../components/Pagination";
+import ToggleBTN from "../../../../components/ToggleBTN";
 
 const Clients = () => {
+  const [updateClientTrusted, { isLoading: isUpdating }] = useUpdateClientTrustedMutation();
+  const { t } = useTranslation();
   const navigate = useNavigate();
-  const [page,         setPage]         = useState(1);
+  const [page, setPage] = useState(1);
   const [filterStatus, setFilterStatus] = useState("active");
   const limit = 10;
 
@@ -14,9 +19,18 @@ const Clients = () => {
     limit,
   });
 
-  const clients    = data?.data         || [];
-  const totalPages = data?.totalPages   || 1;
-  const totalRecs  = data?.totalRecords ?? 0;
+  const clients = data?.data || [];
+  const totalPages = data?.totalPages || 1;
+  const totalRecs = data?.totalRecords ?? 0;
+
+  const handleTrustedToggle = async (clientId, isTrusted) => {
+    try {
+      await updateClientTrusted({ id: clientId, is_trusted: isTrusted });
+      refetch();
+    } catch (err) {
+      console.error("Failed to update trusted status", err);
+    }
+  };
 
   return (
     <div className="page-wrapper">
@@ -24,11 +38,11 @@ const Clients = () => {
       {/* PAGE HEADER */}
       <div className="pg-header">
         <div>
-          <div className="pg-title">Clients</div>
-          <div className="pg-sub">Manage all jewelry clients and their contact details.</div>
+          <div className="pg-title">{t("Clients")}</div>
+          <div className="pg-sub">{t('passwordChangedSuccess')}</div>
         </div>
         <div className="btn-row">
-          <button className="btn btn-primary" onClick={() => navigate("/client-form")}>＋ Add Client</button>
+          <button className="btn btn-primary" onClick={() => navigate("/client-form")}>＋ {t("addClient")}</button>
         </div>
       </div>
 
@@ -36,14 +50,14 @@ const Clients = () => {
       <div className="table-card">
         <div className="table-header">
           <div className="table-title">
-            All Clients
-            <span style={{ fontSize: 12, color: "var(--g500)", fontWeight: 400, marginLeft: 8 }}>({totalRecs} total)</span>
+            {t("allClients")}
+            <span style={{ fontSize: 12, color: "var(--g500)", fontWeight: 400, marginLeft: 8 }}>({totalRecs} {t("total")})</span>
           </div>
           <div className="table-filters">
             <select className="filter-select" value={filterStatus} onChange={(e) => { setFilterStatus(e.target.value); setPage(1); }}>
-              <option value="">All Statuses</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
+              <option value="">{t("allStatus")}</option>
+              <option value="active">{t("active")}</option>
+              <option value="inactive">{t("inactive")}</option>
             </select>
           </div>
         </div>
@@ -52,12 +66,13 @@ const Clients = () => {
           <thead>
             <tr>
               <th>#</th>
-              <th>Client Name</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Address</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th>{t("clientName")}</th>
+              <th>{t("Email")}</th>
+              <th>{t("Phone")}</th>
+              <th>{t("Address")}</th>
+              <th>{t("Status")}</th>
+              <th>{t("Is Trusted")}</th>
+              <th>{t("Actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -79,8 +94,15 @@ const Clients = () => {
                   </span>
                 </td>
                 <td>
+                  <ToggleBTN
+                    clientId={client.id}
+                    isTrusted={client.is_trusted}
+                    onToggle={handleTrustedToggle}
+                  />
+                </td>
+                <td>
                   <div style={{ display: "flex", gap: 6 }}>
-                    <button className="btn-sm" onClick={() => navigate(`/client-form?id=${client.id}`, { state: client })}>Edit</button>
+                    <button className="btn-sm" onClick={() => navigate(`/client-form?id=${client.id}`, { state: client })}>{t("edit")}</button>
                   </div>
                 </td>
               </tr>
@@ -89,16 +111,7 @@ const Clients = () => {
         </table>
 
         {/* PAGINATION */}
-        <div className="pagination">
-          <div className="page-info">Showing {clients.length} of {totalRecs} clients</div>
-          <div className="page-btns">
-            <button className="page-btn" disabled={page === 1} onClick={() => setPage((p) => p - 1)}>← Prev</button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-              <button key={p} className={`page-btn ${p === page ? "active" : ""}`} onClick={() => setPage(p)}>{p}</button>
-            ))}
-            <button className="page-btn" disabled={page === totalPages} onClick={() => setPage((p) => p + 1)}>Next →</button>
-          </div>
-        </div>
+        <Pagination name={"clients"} length={clients.length} totalRecord={totalRecs} page={page} setPage={setPage} totalPages={totalPages} />
       </div>
     </div>
   );

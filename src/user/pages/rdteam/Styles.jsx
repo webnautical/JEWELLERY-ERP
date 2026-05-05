@@ -12,32 +12,14 @@ import {
   formatDate,
 } from "../../../helper/Utility";
 
-const ORIGIN_OPTIONS = [
-  { value: "in_house", label: "In-House" },
-  { value: "client_design", label: "Client Design" },
-  { value: "market_sample", label: "Market Sample" },
-];
-
-const originBadge = (origin) => {
-  const map = {
-    in_house: { cls: "rb-rd", label: "In-House" },
-    client_design: { cls: "rb-sales", label: "Client Design" },
-    market_sample: { cls: "rb-sourcing", label: "Market Sample" },
-  };
-  const m = map[origin] || { cls: "rb-vendor", label: origin };
-  return <span className={`role-badge ${m.cls}`}>{m.label}</span>;
-};
 
 const Styles = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("active");
-  const [filterOrigin, setFilterOrigin] = useState("");
 
-  // API filters — status & origin only (backend supported)
   const { data, isLoading, refetch } = useGetAllStylesQuery({
     status: filterStatus,
-    origin: filterOrigin,
   });
   const [archiveStyle] = useArchiveStyleMutation();
 
@@ -112,18 +94,7 @@ const Styles = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <select
-              className="filter-select"
-              value={filterOrigin}
-              onChange={(e) => setFilterOrigin(e.target.value)}
-            >
-              <option value="">All Origins</option>
-              {ORIGIN_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
+
             <select
               className="filter-select"
               value={filterStatus}
@@ -145,7 +116,6 @@ const Styles = () => {
               <th>Metal Type</th>
               <th>Weight</th>
               <th>Plating</th>
-              <th>Origin</th>
               <th>Status</th>
               <th>Created</th>
               <th>Actions</th>
@@ -220,7 +190,6 @@ const Styles = () => {
                     <td style={{ color: "var(--g700)" }}>
                       {style.plating || "—"}
                     </td>
-                    <td>{originBadge(style.origin)}</td>
                     <td>
                       <span
                         className={`pill ${style.status === "active" ? "p-active" : "p-inactive"}`}
