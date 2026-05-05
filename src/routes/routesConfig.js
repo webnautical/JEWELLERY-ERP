@@ -25,6 +25,7 @@ import DataListing from "../user/pages/admin/data_listing/DataListing";
 import DataDetail from "../user/pages/admin/data_listing/DataDetail";
 import { adminListingRoutes } from "./adminListingRoutes";
 import QuoteDetails from "../user/pages/sales_executive/quotes/QuoteDetails";
+import StyleRequest from "../user/pages/rdteam/StyleRequest";
 
 export const appMenu = [
 
@@ -116,6 +117,7 @@ export const appMenu = [
         title: "Styles",
         icon: "bi-gem",
         roles: ["rd_team"],
+        type: "single",
         children: [
             {
                 path: "/styles",
@@ -136,6 +138,12 @@ export const appMenu = [
                 label: "Edit Style",
                 icon: "bi-gem",
                 hideInMenu: true,
+            },
+            {
+                path: "/get-requested-style",
+                element: StyleRequest,
+                label: "Requested Style",
+                icon: "bi-gem",
             },
             {
                 path: "/dataList/:page",
@@ -273,6 +281,12 @@ export const appMenu = [
                 element: DataListing,
                 label: "Notifications",
                 icon: "bi-bell-fill",
+            },
+            {
+                path: "/sales-order",
+                element: Quotes,
+                label: "Sales Order",
+                icon: "bi-file-earmark-text-fill",
             },
         ],
     },

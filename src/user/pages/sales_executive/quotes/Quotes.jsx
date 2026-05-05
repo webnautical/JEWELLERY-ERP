@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   useGetAllQuotesQuery,
   useGetAllClientsQuery,
@@ -24,38 +24,36 @@ const fmt = (val) =>
     ? `${CURRENCY_SIGN}${Number(val).toLocaleString("en-IN")}`
     : "—";
 
-const statusBadge = (status) => {
-  const found = STATUS_OPTIONS.find((s) => s.value === status);
-  return (
-    <span className={`role-badge ${found?.cls || "rb-vendor"}`}>
-      {found?.label || status}
-    </span>
-  );
-};
-
 const isExpired = (validUntil) =>
   validUntil && new Date(validUntil) < new Date();
 
 const Quotes = () => {
+  const location = useLocation()
+  const isSalesOrderPage = location?.pathname == "/sales-order" ? true : false
+  const pageTitle = isSalesOrderPage ? "Sales Order" : "Quotes";
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [clientId, setClientId] = useState("");
   const [inquiryId, setInquiryId] = useState("");
-  const [status, setStatus] = useState([]);
+  const [status, setStatus] = useState(isSalesOrderPage ? ["accepted"] : []);
   const limit = 10;
   const [updateQuoteStatus, { isLoading: isUpdating }] = useUpdateQuoteStatusMutation();
   const [confirmModal, setConfirmModal] = useState(null);
-
-
-  const { data, isLoading } = useGetAllQuotesQuery({
+  const { data, isLoading, refetch } = useGetAllQuotesQuery({
     status,
     clientId,
     inquiryId,
     search,
     page,
     limit,
-  });
+  },
+    {
+      refetchOnMountOrArgChange: true,
+    }
+  );
+
+
 
   const { data: clientsData } = useGetAllClientsQuery({ limit: 100 });
   const { data: inquiriesData } = useGetAllInquiriesQuery({ limit: 100 });
@@ -101,12 +99,20 @@ const Quotes = () => {
     }
   };
 
+  useEffect(() => {
+    setStatus(isSalesOrderPage ? ["accepted"] : []);
+    setSearch("");
+    setClientId("");
+    setInquiryId("");
+    setPage(1);
+    refetch();
+  }, [location.pathname]);
   return (
     <div className="page-wrapper">
       {/* PAGE HEADER */}
       <div className="pg-header">
         <div>
-          <div className="pg-title">Quotes</div>
+          <div className="pg-title">{pageTitle}</div>
           <div className="pg-sub">
             Track all quotes sent to clients — monitor status, validity, and
             follow-ups.
@@ -118,7 +124,7 @@ const Quotes = () => {
       <div className="table-card">
         <div className="table-header" style={{ flexWrap: "wrap", gap: 12 }}>
           <div className="table-title">
-            All Quotes
+            All {pageTitle}
             <span
               style={{
                 fontSize: 12,
@@ -130,6 +136,8 @@ const Quotes = () => {
               ({totalRecs} total)
             </span>
           </div>
+          {
+            !isSalesOrderPage &&
           <div className="table-filters" style={{ flexWrap: "wrap", gap: 8 }}>
             <input
               className="filter-inp"
@@ -180,50 +188,54 @@ const Quotes = () => {
               </button>
             )}
           </div>
+          }
         </div>
 
         {/* Status filter pills */}
-        <div
-          style={{
-            display: "flex",
-            gap: 8,
-            padding: "10px 16px",
-            borderBottom: "1px solid var(--g200)",
-            flexWrap: "wrap",
-          }}
-        >
-          <span
+        {
+          !isSalesOrderPage &&
+          <div
             style={{
-              fontSize: 11,
-              color: "var(--g500)",
-              alignSelf: "center",
-              marginRight: 4,
+              display: "flex",
+              gap: 8,
+              padding: "10px 16px",
+              borderBottom: "1px solid var(--g200)",
+              flexWrap: "wrap",
             }}
           >
-            Status:
-          </span>
-          {STATUS_OPTIONS.map((s) => (
-            <button
-              key={s.value}
-              onClick={() => handleStatusToggle(s.value)}
+            <span
               style={{
-                padding: "3px 10px",
-                borderRadius: 20,
                 fontSize: 11,
-                fontWeight: 600,
-                cursor: "pointer",
-                border: status.includes(s.value)
-                  ? "none"
-                  : "1px solid var(--g200)",
-                background: status.includes(s.value) ? "var(--black)" : "#fff",
-                color: status.includes(s.value) ? "#fff" : "var(--g700)",
-                transition: "all .15s",
+                color: "var(--g500)",
+                alignSelf: "center",
+                marginRight: 4,
               }}
             >
-              {s.label}
-            </button>
-          ))}
-        </div>
+              Status:
+            </span>
+            {STATUS_OPTIONS.map((s) => (
+              <button
+                key={s.value}
+                onClick={() => handleStatusToggle(s.value)}
+                style={{
+                  padding: "3px 10px",
+                  borderRadius: 20,
+                  fontSize: 11,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  border: status.includes(s.value)
+                    ? "none"
+                    : "1px solid var(--g200)",
+                  background: status.includes(s.value) ? "var(--black)" : "#fff",
+                  color: status.includes(s.value) ? "#fff" : "var(--g700)",
+                  transition: "all .15s",
+                }}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+        }
 
         <table className="erp-table">
           <thead>
@@ -237,9 +249,14 @@ const Quotes = () => {
               <th>Quote / pc</th>
               <th>Total Value</th>
               <th>Valid Until</th>
-              <th>Status</th>
               <th>Created</th>
-              <th>Actions</th>
+              {
+                !isSalesOrderPage &&
+                <>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </>
+              }
             </tr>
           </thead>
           <tbody>
@@ -326,42 +343,48 @@ const Quotes = () => {
                       )}
                     </td>
 
-                    <td>
-                      <select
-                        className="filter-select"
-                        value={q.status}
-                        onChange={(e) => handleStatusChange(q.id, q.quote_code, e.target.value)}
-                        style={{ fontSize: 11.5, padding: "3px 8px", minWidth: 110 }}
-                      >
-                        {STATUS_OPTIONS.map((s) => (
-                          <option key={s.value} value={s.value}
-                            disabled={!EDITABLE_STATUSES.includes(s.value)}
-                          >
-                            {s.label}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
+
 
                     <td style={{ fontSize: 11.5, color: "var(--g500)" }}>
                       {formatDate(q.created_at)}
                     </td>
-                    <td>
-                      <div style={{ display: "flex", gap: 6 }}>
-                        <button
-                          className="btn-sm"
-                          onClick={() => navigate(`/quote-details/${q.id}`)}
-                        >
-                          View / Revise
-                        </button>
-                        <button
-                          className="btn-sm"
-                          onClick={() => navigate(`/quote-pdf/${q.id}`)}
-                        >
-                          🖨 Print
-                        </button>
-                      </div>
-                    </td>
+                    {
+                      !isSalesOrderPage &&
+                      <>
+                        <td>
+                          <select
+                            className="filter-select"
+                            value={q.status}
+                            onChange={(e) => handleStatusChange(q.id, q.quote_code, e.target.value)}
+                            style={{ fontSize: 11.5, padding: "3px 8px", minWidth: 110 }}
+                          >
+                            {STATUS_OPTIONS.map((s) => (
+                              <option key={s.value} value={s.value}
+                                disabled={!EDITABLE_STATUSES.includes(s.value)}
+                              >
+                                {s.label}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td>
+                          <div style={{ display: "flex", gap: 6 }}>
+                            <button
+                              className="btn-sm"
+                              onClick={() => navigate(`/quote-details/${q.id}`)}
+                            >
+                              View / Revise
+                            </button>
+                            <button
+                              className="btn-sm"
+                              onClick={() => navigate(`/quote-pdf/${q.id}`)}
+                            >
+                              🖨 Print
+                            </button>
+                          </div>
+                        </td>
+                      </>
+                    }
                   </tr>
                 );
               })
@@ -372,7 +395,7 @@ const Quotes = () => {
         {/* PAGINATION */}
         <div className="pagination">
           <div className="page-info">
-            Showing {quotes.length} of {totalRecs} quotes
+            Showing {quotes.length} of {totalRecs} {pageTitle}
           </div>
           <div className="page-btns">
             <button

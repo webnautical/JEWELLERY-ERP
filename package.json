@@ -13,6 +13,7 @@
     "@reduxjs/toolkit": "^2.11.2",
     "bootstrap": "^5.3.8",
     "crypto-js": "^4.2.0",
+    "lightgallery": "^2.9.0",
     "react": "^19.2.0",
     "react-bootstrap": "^2.10.10",
     "react-dom": "^19.2.0",

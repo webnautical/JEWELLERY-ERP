@@ -221,7 +221,7 @@ const Sidebar = () => {
           borderRight: '1px solid #1a1a1a', height: '100vh',
           position: 'fixed', top: 0,
           left: isMobile ? (isMobileOpen ? '0' : '-260px') : '0',
-          zIndex: 1050, boxShadow: '2px 0 8px rgba(0,0,0,0.3)',
+          zIndex: 1000, boxShadow: '2px 0 8px rgba(0,0,0,0.3)',
           transition: 'left 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           display: 'flex', flexDirection: 'column',
         }}

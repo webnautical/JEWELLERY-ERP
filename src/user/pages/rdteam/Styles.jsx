@@ -112,6 +112,7 @@ const Styles = () => {
             <tr>
               <th>#</th>
               <th>Image</th>
+              <th>Style Code</th>
               <th>Style Name</th>
               <th>Metal Type</th>
               <th>Weight</th>
@@ -171,6 +172,9 @@ const Styles = () => {
                       ) : (
                         <div className="style-thumb-empty">No img</div>
                       )}
+                    </td>
+                    <td style={{ color: "var(--g700)" }}>
+                      {style.style_code || "—"}
                     </td>
                     <td>
                       <div style={{ fontWeight: 500 }}>{style.style_name}</div>
