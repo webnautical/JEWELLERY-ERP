@@ -1773,3 +1773,5 @@ background: #1e1e1e;
   color: var(--g900);
   font-weight: 400;
 }
+
+.pagination{ padding: 15px!important;}

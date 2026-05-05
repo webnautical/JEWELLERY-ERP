@@ -10,17 +10,9 @@ import {
   CURRENCY_SIGN,
 } from "../../../helper/Utility";
 
-const MATERIAL_ICON = {
-  Gold: "🥇",
-  Silver: "⚪",
-  Diamond: "💎",
-  Platinum: "⬜",
-  Ruby: "🔴",
-  Pearl: "🤍",
-  Sapphire: "🔵",
-};
 
-const getIcon = (name) => MATERIAL_ICON[name] || "💰";
+
+
 
 const fmt = (val) => (val != null ? `${CURRENCY_SIGN}${Number(val)}` : "—");
 
@@ -32,7 +24,7 @@ const SpotlightCard = ({ rate }) => {
         <div className="rsc-label">
           {rate.material_name} {rate.grade}
         </div>
-        <div className="rsc-icon">{getIcon(rate.material_name)}</div>
+      
       </div>
       <div className="rsc-rate">{fmt(rate.rate)}</div>
       <div className="rsc-unit">per {rate.unit}</div>
@@ -139,7 +131,7 @@ const SourcingDashboard = () => {
 
       {/* IMPACT ALERT BANNER */}
       <div className="rate-alert-banner">
-        ⚠ Rates updated here reflect immediately in all NEW estimates. Existing
+        <i class="bi bi-exclamation-octagon-fill"></i> Rates updated here reflect immediately in all NEW estimates. Existing
         estimates and production orders keep their frozen snapshot — they will
         NOT be affected.
       </div>

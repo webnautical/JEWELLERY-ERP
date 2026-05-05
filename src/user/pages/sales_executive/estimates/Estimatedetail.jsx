@@ -297,8 +297,8 @@ const CreateQuoteModal = ({ est, onClose, onSuccess }) => {
               }}
             >
               {quotePerPiece <= parseFloat(est.target_price)
-                ? "✅ Within"
-                : "⚠️ Exceeds"}{" "}
+                ? "Within"
+                : "Exceeds"}{" "}
               client target: {fmt(est.target_price)} / pc
             </div>
           )}
@@ -361,7 +361,7 @@ const CreateQuoteModal = ({ est, onClose, onSuccess }) => {
             onClick={() => handleSubmit("draft")}
             disabled={saving}
           >
-            💾 Save Draft
+            Save Draft
           </button>
           <button
             className="btn btn-primary"
@@ -369,7 +369,7 @@ const CreateQuoteModal = ({ est, onClose, onSuccess }) => {
             onClick={() => handleSubmit("send")}
             disabled={saving}
           >
-            {saving ? "Sending..." : "📨 Send to Client"}
+            {saving ? "Sending..." : "Send to Client"}
           </button>
         </div>
       </div>
@@ -436,7 +436,7 @@ const EstimateDetail = () => {
             className="btn btn-primary"
             onClick={() => setShowQuoteModal(true)}
           >
-            📄 Create Quote
+             Create Quote
           </button>
         </div>
       </div>
@@ -587,7 +587,7 @@ const EstimateDetail = () => {
                 gap: 12,
               }}
             >
-              <div style={{ fontSize: 24 }}>{withinBudget ? "✅" : "⚠️"}</div>
+              <div style={{ fontSize: 24 }}>{withinBudget ? "" : ""}</div>
               <div>
                 <div
                   style={{

@@ -14,11 +14,11 @@ const STATUS_OPTIONS = [
 ];
 
 const SOURCE_LABELS = {
-  phone:     "📞 Phone",
-  email:     "📧 Email",
-  whatsapp:  "💬 WhatsApp",
-  walk_in:   "🚶 Walk-in",
-  reference: "🤝 Reference",
+  phone:     "Phone",
+  email:     "Email",
+  whatsapp:  "WhatsApp",
+  walk_in:   "Walk-in",
+  reference: "Reference",
 };
 
 const statusBadge = (status) => {

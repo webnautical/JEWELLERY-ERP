@@ -207,8 +207,8 @@ const CostingDashboard = () => {
             <tbody>
               {pendingRequests.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="dash-empty-cell">
-                    <div style={{ fontSize: 22, marginBottom: 6 }}>✅</div>
+                  <td colSpan={6} className="dash-empty-cell text-center">
+                    <div style={{ fontSize: 22, marginBottom: 6 }}></div>
                     No pending requests — all caught up!
                   </td>
                 </tr>

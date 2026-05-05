@@ -54,7 +54,7 @@ const EstimateRequests = () => {
             ) : requests.length === 0 ? (
               <tr>
                 <td colSpan={9} style={{ textAlign: "center", padding: 40, color: "var(--g500)" }}>
-                  <div style={{ fontSize: 28, marginBottom: 8 }}>✅</div>
+               
                   <div style={{ fontWeight: 500 }}>No pending requests</div>
                   <div style={{ fontSize: 12, marginTop: 4 }}>All estimate requests have been completed.</div>
                 </td>
