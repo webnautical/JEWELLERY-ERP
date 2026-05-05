@@ -24,6 +24,7 @@ import Rate from "../user/pages/sourcing/Rate";
 import DataListing from "../user/pages/admin/data_listing/DataListing";
 import DataDetail from "../user/pages/admin/data_listing/DataDetail";
 import { adminListingRoutes } from "./adminListingRoutes";
+import QuoteDetails from "../user/pages/sales_executive/quotes/QuoteDetails";
 
 export const appMenu = [
 
@@ -52,6 +53,7 @@ export const appMenu = [
                 icon: "bi-person-circle",
                 hideInMenu: true,
             },
+
         ],
     },
 
@@ -135,6 +137,13 @@ export const appMenu = [
                 icon: "bi-gem",
                 hideInMenu: true,
             },
+            {
+                path: "/dataList/:page",
+                navPath: "/dataList/notifications",
+                element: DataListing,
+                label: "Notifications",
+                icon: "bi-bell-fill",
+            },
         ],
     },
 
@@ -161,6 +170,13 @@ export const appMenu = [
                 element: Rate,
                 label: "Add Rate",
                 icon: "bi-currency-exchange",
+            },
+            {
+                path: "/dataList/:page",
+                navPath: "/dataList/notifications",
+                element: DataListing,
+                label: "Notifications",
+                icon: "bi-bell-fill",
             },
         ],
     },
@@ -244,6 +260,20 @@ export const appMenu = [
                 icon: "bi-file-earmark-pdf-fill",
                 hideInMenu: true,
             },
+            {
+                path: "/quote-details/:id",
+                element: QuoteDetails,
+                label: "Quote PDF",
+                icon: "bi-file-earmark-pdf-fill",
+                hideInMenu: true,
+            },
+            {
+                path: "/dataList/:page",
+                navPath: "/dataList/notifications",
+                element: DataListing,
+                label: "Notifications",
+                icon: "bi-bell-fill",
+            },
         ],
     },
 
@@ -266,6 +296,13 @@ export const appMenu = [
                 label: "Create Estimate",
                 icon: "bi-calculator-fill",
                 hideInMenu: true,
+            },
+            {
+                path: "/dataList/:page",
+                navPath: "/dataList/notifications",
+                element: DataListing,
+                label: "Notifications",
+                icon: "bi-bell-fill",
             },
         ],
     },

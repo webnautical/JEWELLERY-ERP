@@ -4,8 +4,11 @@ import {
   useGetAllQuotesQuery,
   useGetAllClientsQuery,
   useGetAllInquiriesQuery,
+  useUpdateQuoteStatusMutation,
 } from "../../../../api/SalesAPI";
 import { formatDate, CURRENCY_SIGN } from "../../../../helper/Utility";
+import LoadingBTN from './../../../../components/LoadingBTN';
+import { CreateQuoteModal } from "../../../../components/CreateQuoteModal";
 
 const STATUS_OPTIONS = [
   { value: "draft", label: "Draft", cls: "rb-vendor" },
@@ -41,6 +44,9 @@ const Quotes = () => {
   const [inquiryId, setInquiryId] = useState("");
   const [status, setStatus] = useState([]);
   const limit = 10;
+  const [updateQuoteStatus, { isLoading: isUpdating }] = useUpdateQuoteStatusMutation();
+  const [confirmModal, setConfirmModal] = useState(null);
+
 
   const { data, isLoading } = useGetAllQuotesQuery({
     status,
@@ -50,6 +56,7 @@ const Quotes = () => {
     page,
     limit,
   });
+
   const { data: clientsData } = useGetAllClientsQuery({ limit: 100 });
   const { data: inquiriesData } = useGetAllInquiriesQuery({ limit: 100 });
 
@@ -75,6 +82,24 @@ const Quotes = () => {
   };
 
   const hasFilters = search || clientId || inquiryId || status.length > 0;
+
+  const EDITABLE_STATUSES = ["sent", "accepted", "rejected", "negotiating"];
+
+  const handleStatusChange = (quoteId, quoteCode, newStatus) => {
+    setConfirmModal({ quoteId, newStatus, quoteCode });
+  };
+
+  const confirmStatusChange = async () => {
+    try {
+      await updateQuoteStatus({
+        quoteId: confirmModal.quoteId,
+        status: confirmModal.newStatus,
+      }).unwrap();
+      setConfirmModal(null);
+    } catch (err) {
+      console.error("Failed to update status:", err);
+    }
+  };
 
   return (
     <div className="page-wrapper">
@@ -300,12 +325,35 @@ const Quotes = () => {
                         </div>
                       )}
                     </td>
-                    <td>{statusBadge(q.status)}</td>
+
+                    <td>
+                      <select
+                        className="filter-select"
+                        value={q.status}
+                        onChange={(e) => handleStatusChange(q.id, q.quote_code, e.target.value)}
+                        style={{ fontSize: 11.5, padding: "3px 8px", minWidth: 110 }}
+                      >
+                        {STATUS_OPTIONS.map((s) => (
+                          <option key={s.value} value={s.value}
+                            disabled={!EDITABLE_STATUSES.includes(s.value)}
+                          >
+                            {s.label}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+
                     <td style={{ fontSize: 11.5, color: "var(--g500)" }}>
                       {formatDate(q.created_at)}
                     </td>
                     <td>
                       <div style={{ display: "flex", gap: 6 }}>
+                        <button
+                          className="btn-sm"
+                          onClick={() => navigate(`/quote-details/${q.id}`)}
+                        >
+                          View / Revise
+                        </button>
                         <button
                           className="btn-sm"
                           onClick={() => navigate(`/quote-pdf/${q.id}`)}
@@ -353,6 +401,88 @@ const Quotes = () => {
           </div>
         </div>
       </div>
+
+      {confirmModal && (
+        <div
+          style={{
+            position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)",
+            display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000,
+          }}
+          onClick={(e) => e.target === e.currentTarget && setConfirmModal(null)}
+        >
+          <div style={{
+            background: "#fff", borderRadius: 12, width: 400,
+            padding: "28px 28px 24px",
+            border: "0.5px solid var(--g200)",
+          }}>
+
+            {/* Header */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+              <div style={{ fontSize: 16, fontWeight: 500 }}>Update quote status</div>
+              <button
+                onClick={() => setConfirmModal(null)}
+                style={{
+                  width: 28, height: 28, borderRadius: "50%", background: "var(--g100)",
+                  border: "none", cursor: "pointer", fontSize: 13,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}
+              >✕</button>
+            </div>
+
+            {/* Quote + new status row */}
+            <div style={{
+              display: "flex", alignItems: "center", gap: 8,
+              background: "var(--g50)", borderRadius: 8,
+              padding: "10px 14px", marginBottom: 14,
+            }}>
+              <span style={{ fontSize: 13, fontWeight: 500 }}>{confirmModal.quoteCode}</span>
+              <span style={{ color: "var(--g400)", fontSize: 13 }}>→</span>
+              <span className={`role-badge ${STATUS_OPTIONS.find(s => s.value === confirmModal.newStatus)?.cls}`}>
+                {STATUS_OPTIONS.find(s => s.value === confirmModal.newStatus)?.label}
+              </span>
+            </div>
+
+            {/* Body text */}
+            <p style={{ fontSize: 13, color: "var(--g600)", lineHeight: 1.6, marginBottom: 20 }}>
+              This will update the status of quote{" "}
+              <strong style={{ color: "var(--black)" }}>{confirmModal.quoteCode}</strong>{" "}
+              to{" "}
+              <strong style={{ color: "var(--black)" }}>
+                {STATUS_OPTIONS.find(s => s.value === confirmModal.newStatus)?.label}
+              </strong>.
+              This action can be changed later.
+            </p>
+
+            <hr style={{ border: "none", borderTop: "1px solid var(--g100)", marginBottom: 20 }} />
+
+            {/* Actions */}
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+
+              <button
+                className="btn btn-outline"
+                onClick={() => setConfirmModal(null)}
+                disabled={isUpdating}
+              >
+                Cancel
+              </button>
+              {
+                isUpdating ?
+                  <LoadingBTN />
+                  :
+                  <button
+                    className="btn btn-primary"
+                    onClick={confirmStatusChange}
+                    disabled={isUpdating}
+                  >
+                    {isUpdating ? "Updating..." : "Confirm"}
+                  </button>
+
+              }
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

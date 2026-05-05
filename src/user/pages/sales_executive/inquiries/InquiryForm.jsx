@@ -1,95 +1,125 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useGetInquiryByIdQuery, useCreateUpdateInquiryMutation, useGetAllClientsQuery } from "../../../../api/SalesAPI";
 import { useGetAllStylesQuery } from "../../../../api/RdAPI";
 import { useGetAllUsersQuery } from "../../../../api/UserAPI";
 import { showSuccess, showError, CURRENCY_SIGN } from "../../../../helper/Utility";
+import { ORIGIN_OPTIONS } from "../../../../helper/Constant";
 
 const STATUS_OPTIONS = [
-  { value: "new",         label: "New"         },
-  { value: "reviewing",   label: "Reviewing"   },
-  { value: "quoted",      label: "Quoted"      },
+  { value: "new", label: "New" },
+  { value: "reviewing", label: "Reviewing" },
+  { value: "quoted", label: "Quoted" },
   { value: "negotiating", label: "Negotiating" },
-  { value: "accepted",    label: "Accepted"    },
-  { value: "rejected",    label: "Rejected"    },
-  { value: "on_hold",     label: "On Hold"     },
+  { value: "accepted", label: "Accepted" },
+  { value: "rejected", label: "Rejected" },
+  { value: "on_hold", label: "On Hold" },
 ];
 
 const SOURCE_OPTIONS = [
-  { value: "phone",     label: "Phone"     },
-  { value: "email",     label: "Email"     },
-  { value: "whatsapp",  label: "WhatsApp"  },
-  { value: "walk_in",   label: "Walk-in"   },
+  { value: "phone", label: "Phone" },
+  { value: "email", label: "Email" },
+  { value: "whatsapp", label: "WhatsApp" },
+  { value: "walk_in", label: "Walk-in" },
   { value: "reference", label: "Reference" },
 ];
 
 const CATEGORY_OPTIONS = ["Diamond", "Gold", "Silver", "Platinum", "Kundan", "Polki", "Enamel", "Other"];
 
 const INIT = {
-  clientId:        "",
-  styleId:         "",
-  productDesc:     "",
-  quantity:        "",
-  targetPrice:     "",
-  requiredDelivery:"",
-  source:          "",
-  assignedTo:      "",
-  notes:           "",
-  status:          "new",
+  clientId: "",
+  styleId: "",
+  productDesc: "",
+  quantity: "",
+  targetPrice: "",
+  requiredDelivery: "",
+  source: "",
+  origin: "",
+  notes: "",
+  status: "new",
 };
 
 const INIT_ERRS = {
-  clientId:    "",
+  clientId: "",
   productDesc: "",
-  quantity:    "",
+  quantity: "",
 };
 
 const InquiryForm = () => {
-  const navigate       = useNavigate();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const id             = searchParams.get("id");
-  const isEdit         = Boolean(id);
+  const id = searchParams.get("id");
+  const isEdit = Boolean(id);
 
   const [form, setForm] = useState(INIT);
   const [errs, setErrs] = useState(INIT_ERRS);
 
   const { data: inquiryData, isLoading: fetching } = useGetInquiryByIdQuery(id, { skip: !isEdit });
-  const { data: clientsData }  = useGetAllClientsQuery({ limit: 100 });
-  const { data: stylesData  }  = useGetAllStylesQuery({status: "active"});
-  const { data: usersData   }  = useGetAllUsersQuery({ role: "costing_team", limit: 100 });
+  const { data: clientsData } = useGetAllClientsQuery({ limit: 100 });
+  const { data: stylesData } = useGetAllStylesQuery({ status: "active" });
   const [createUpdateInquiry, { isLoading: saving }] = useCreateUpdateInquiryMutation();
 
   const clients = clientsData?.data || [];
-  const styles  = stylesData?.data  || [];
-  const users   = usersData?.data   || [];
+  const styles = stylesData?.data || [];
+  const imgRef = useRef();
+  const [imgPreview, setImgPreview] = useState([]);
+  const [removedImages, setRemovedImages] = useState([]);
+  const [images, setImages] = useState([]);
 
-  // Pre-fill on edit
   useEffect(() => {
     if (inquiryData?.data) {
       const d = inquiryData.data;
       setForm({
-        clientId:         d.client_id        || "",
-        styleId:          d.style_id         || "",
-        productDesc:      d.product_desc     || "",
-        quantity:         d.quantity         || "",
-        targetPrice:      d.target_price     || "",
+        clientId: d.client_id || "",
+        styleId: d.style_id || "",
+        productDesc: d.product_desc || "",
+        quantity: d.quantity || "",
+        origin: d.origin || "",
+        targetPrice: d.target_price || "",
         requiredDelivery: d.required_delivery ? d.required_delivery.split("T")[0] : "",
-        source:           d.source           || "",
-        assignedTo:       d.assigned_to      || "",
-        notes:            d.notes            || "",
-        status:           d.status           || "new",
+        source: d.source || "",
+        assignedTo: d.assigned_to || "",
+        notes: d.notes || "",
+        status: d.status || "new",
       });
     }
   }, [inquiryData]);
 
-  // ── Validation ────────────────────────────────────────────────────────────
   const validate = (name, value) => {
-    if (name === "clientId")    return !value           ? "Client is required."              : "";
-    if (name === "productDesc") return !value.trim()    ? "Product description is required." : "";
-    if (name === "quantity")    return !value           ? "Quantity is required."
-                                     : isNaN(value) || Number(value) <= 0 ? "Enter a valid quantity." : "";
+    if (name === "clientId") return !value ? "Client is required." : "";
+    if (name === "productDesc") return !value.trim() ? "Product description is required." : "";
+    if (name === "quantity") return !value ? "Quantity is required."
+      : isNaN(value) || Number(value) <= 0 ? "Enter a valid quantity." : "";
     return "";
   };
+
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    setImages((p) => [...p, ...files]);
+    const previews = files.map((f) => ({
+      url: URL.createObjectURL(f),
+      name: f.name,
+      isExisting: false,
+    }));
+    setImgPreview((p) => [...p, ...previews]);
+    e.target.value = "";
+  };
+
+  // AFTER
+  const removeImage = (idx) => {
+    const item = imgPreview[idx];
+    if (item.isExisting) {
+      setRemovedImages((p) => [...p, item.name]);
+    } else {
+      const newIdx = imgPreview
+        .slice(0, idx)
+        .filter((i) => !i.isExisting).length;
+      setImages((p) => p.filter((_, i) => i !== newIdx));
+    }
+    setImgPreview((p) => p.filter((_, i) => i !== idx));
+  };
+
+  console.log("form",form)
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -104,9 +134,9 @@ const InquiryForm = () => {
 
   const validateAll = () => {
     const next = {
-      clientId:    validate("clientId",    form.clientId),
+      clientId: validate("clientId", form.clientId),
       productDesc: validate("productDesc", form.productDesc),
-      quantity:    validate("quantity",    form.quantity),
+      quantity: validate("quantity", form.quantity),
     };
     setErrs(next);
     return Object.values(next).every((e) => !e);
@@ -115,27 +145,32 @@ const InquiryForm = () => {
   const handleSubmit = async () => {
     if (!validateAll()) return;
     try {
-      const payload = {
-        ...(isEdit && { id }),
-        clientId:         parseInt(form.clientId),
-        styleId:          form.styleId    ? parseInt(form.styleId)    : undefined,
-        assignedTo:       form.assignedTo ? parseInt(form.assignedTo) : undefined,
-        productDesc:      form.productDesc,
-        quantity:         parseInt(form.quantity),
-        targetPrice:      form.targetPrice     ? parseFloat(form.targetPrice) : undefined,
-        requiredDelivery: form.requiredDelivery || undefined,
-        source:           form.source          || undefined,
-        notes:            form.notes           || undefined,
-        status:           form.status,
-      };
-      await createUpdateInquiry(payload).unwrap();
+      const formData = new FormData();
+
+      if (isEdit) formData.append("id", id);
+      formData.append("clientId", parseInt(form.clientId));
+      if (form.styleId) formData.append("styleId", parseInt(form.styleId));
+      if (form.assignedTo) formData.append("assignedTo", parseInt(form.assignedTo));
+      if (form.productDesc) formData.append("productDesc", form.productDesc);
+      formData.append("quantity", parseInt(form.quantity));
+      formData.append("origin", form.origin);
+      if (form.targetPrice) formData.append("targetPrice", parseFloat(form.targetPrice));
+      if (form.requiredDelivery) formData.append("requiredDelivery", form.requiredDelivery);
+      if (form.source) formData.append("source", form.source);
+      if (form.notes) formData.append("notes", form.notes);
+      formData.append("status", form.status);
+
+      if(images?.length > 0){
+        images.forEach((f) => formData.append("designs", f));
+      }
+
+      await createUpdateInquiry(formData).unwrap();
       showSuccess(isEdit ? "Inquiry updated successfully." : "Inquiry created successfully.", isEdit ? "Updated" : "Created");
       navigate("/inquiries");
     } catch (err) {
       showError(err?.data?.message || "Something went wrong.");
     }
   };
-
   if (isEdit && fetching) {
     return <div className="page-wrapper"><div style={{ padding: 40, textAlign: "center", color: "var(--g500)" }}>Loading inquiry...</div></div>;
   }
@@ -180,6 +215,23 @@ const InquiryForm = () => {
             </select>
           </div>
 
+          <div className="form-grp">
+            <label className="form-lbl">Origin *</label>
+            <select
+              className={`form-select ${errs.origin ? "inp-error" : ""}`}
+              name="origin"
+              value={form.origin}
+              onChange={handleChange}
+              onBlur={handleBlur}
+            >
+              {ORIGIN_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Product Description */}
           <div className="form-grp" style={{ gridColumn: "1 / -1" }}>
             <label className="form-lbl">Product Description *</label>
@@ -216,15 +268,6 @@ const InquiryForm = () => {
             </select>
           </div>
 
-          {/* Assigned To */}
-          <div className="form-grp">
-            <label className="form-lbl">Assigned To</label>
-            <select className="form-select" name="assignedTo" value={form.assignedTo} onChange={handleChange}>
-              <option value="">Select sales executive...</option>
-              {users.map((u) => <option key={u.id} value={u.id}>{u.first_name} {u.last_name}</option>)}
-            </select>
-          </div>
-
           {/* Status — edit only */}
           {isEdit && (
             <div className="form-grp">
@@ -241,6 +284,62 @@ const InquiryForm = () => {
             <textarea className="form-inp" name="notes" rows={3} placeholder="e.g. Client wants extra rhodium plating" value={form.notes} onChange={handleChange} style={{ resize: "vertical", minHeight: 80 }} />
           </div>
 
+        </div>
+        <div className="row mt-3">
+          <div className="col-12">
+            <div className="form-panel-header">
+              <div className="form-panel-title">Images</div>
+              <button
+                type="button"
+                className="btn btn-outline"
+                style={{ padding: "5px 12px", fontSize: 12 }}
+                onClick={() => imgRef.current.click()}
+              >
+                ＋ Add Images
+              </button>
+            </div>
+            <input
+              ref={imgRef}
+              type="file"
+              accept="image/*"
+              multiple
+              style={{ display: "none" }}
+              onChange={handleImageChange}
+            />
+
+            {imgPreview.length > 0 ? (
+              <div className="img-preview-grid">
+                {imgPreview.map((img, idx) => (
+                  <div key={idx} className="img-preview-item">
+                    <img src={img.url} alt={img.name} />
+                    <button
+                      type="button"
+                      className="img-remove-btn"
+                      onClick={() => removeImage(idx)}
+                    >
+                      ✕
+                    </button>
+                    {img.isExisting && (
+                      <div className="img-existing-tag">Saved</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div
+                className="upload-placeholder"
+                onClick={() => imgRef.current.click()}
+              >
+                <div style={{ fontSize: 28, marginBottom: 6 }}>🖼</div>
+                <div style={{ fontSize: 13, color: "var(--g500)" }}>
+                  Click to upload style images
+                </div>
+                <div style={{ fontSize: 11, color: "var(--g300)", marginTop: 4 }}>
+                  JPG, PNG supported
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="form-actions">

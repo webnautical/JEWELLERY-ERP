@@ -19,9 +19,6 @@ export const useTranslation = () => {
 
   const t = (key) => {
     if (!key) return '';
-    console.log('translations[language]', translations[language]);
-    console.log('key', key);
-    console.log('direct hit', translations[language]?.[key]);
     
     // direct key try karo
     if (translations[language]?.[key]) return translations[language][key];

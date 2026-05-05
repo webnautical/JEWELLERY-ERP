@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useGetQuoteByIdQuery } from "../../../../api/SalesAPI";
-import { formatDate, CURRENCY_SIGN } from "../../../../helper/Utility";
+import { formatDate, CURRENCY_SIGN, WEB_LOGO } from "../../../../helper/Utility";
 
 const fmt = (val) =>
   val != null && val !== ""
@@ -58,8 +58,9 @@ const QuotePDF = () => {
         {/* Header */}
         <div className="pdf-header">
           <div className="pdf-brand">
-            <div className="pdf-logo">CATTIVO</div>
-            <div className="pdf-tagline">JEWELRY</div>
+            <img src={WEB_LOGO()?.black} alt="" style={{width : '230px'}} />
+            {/* <div className="pdf-logo">CATTIVO</div>
+            <div className="pdf-tagline">JEWELRY</div> */}
           </div>
           <div className="pdf-doc-info">
             <div className="pdf-doc-title">QUOTATION</div>

@@ -3,7 +3,6 @@ import { authUser } from "../helper/Utility";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const user = authUser();
-
   if (!user) {
     return <Navigate to="/login" />;
   }

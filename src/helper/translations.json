@@ -59,7 +59,7 @@
     "addNewUser": "Add New User",
     "newUserDetails": "New User Details",
     "editUserDetails": "Edit User Details",
-    "backToUsers": "← Back to Users",
+    "backToUsers": "Back to Users",
     "firstName": "First Name",
     "lastName": "Last Name",
     "email": "Email",
@@ -106,7 +106,17 @@
     "confirmPasswordRequired": "Please confirm your new password.",
     "passwordMismatch": "Passwords do not match.",
 
-    "passwordChangedSuccess": "Password changed successfully. Please log in again."
+    "passwordChangedSuccess": "Password changed successfully. Please log in again.",
+
+     "manageJewelryClients": "Manage all jewelry clients and their contact details.",
+    "addClient": "Add Client",
+    "allClients": "All Clients",
+    "allStatus": "All Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "clientName": "Client Name",
+    "address": "Address",
+    "status": "Status"
   },
 
   "zh": {
@@ -169,7 +179,7 @@
     "addNewUser": "添加新用户",
     "newUserDetails": "新用户详情",
     "editUserDetails": "编辑用户详情",
-    "backToUsers": "← 返回用户列表",
+    "backToUsers": "返回用户列表",
     "firstName": "名",
     "lastName": "姓",
     "email": "电子邮件",
@@ -215,6 +225,15 @@
     "confirmPasswordRequired": "请确认您的新密码。",
     "passwordMismatch": "两次输入的密码不一致。",
 
-    "passwordChangedSuccess": "密码修改成功！请重新登录。"
+    "passwordChangedSuccess": "密码修改成功！请重新登录。",
+    "manageJewelryClients": "管理所有珠宝客户及其联系方式。",
+    "addClient": "添加客户",
+    "allClients": "所有客户",
+    "allStatus": "所有状态",
+    "active": "活跃",
+    "inactive": "非活跃",
+    "clientName": "客户名称",
+    "address": "地址",
+    "status": "状态"
   }
 }

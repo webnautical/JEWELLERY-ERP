@@ -20,15 +20,12 @@ const EMPTY_ITEM = {
   notes: "",
 };
 
-// ── BOM creation mode ─────────────────────────────────────────────────────────
-// "inquiry" — linked to an inquiry (inquiryId sent)
-// "style"   — standalone style BOM (styleId sent directly)
 const BOM_MODES = [
   { value: "inquiry", label: "Linked to Inquiry" },
   { value: "style", label: "Style Only (No Inquiry)" },
 ];
 
-// ── Item Row ──────────────────────────────────────────────────────────────────
+
 const ItemRow = ({
   item,
   idx,

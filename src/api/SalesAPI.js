@@ -13,7 +13,6 @@ export const SalesAPI = createApi({
             providesTags: ['SalesDashboard'],
         }),
 
-
         // ── CLIENTS ────────────────────────────────────────────────────────
         getAllClients: builder.query({
             query: ({ status = '', page = 1, limit = 10 } = {}) => {
@@ -109,6 +108,21 @@ export const SalesAPI = createApi({
             query: (body) => ({ url: 'sales/createQuote', method: 'POST', body }),
             invalidatesTags: ['Inquiries', 'Quotes'],
         }),
+        updateQuoteStatus: builder.mutation({
+            query: (body) => ({
+                url: "/sales/updateQuoteStatus",
+                method: "POST",
+                body,
+            }),
+            invalidatesTags: ["Quotes"],
+        }),
+        updateClientTrusted: builder.mutation({
+            query: (body) => ({
+                url: "/sales/toggleClientTrust",
+                method: "POST",
+                body,
+            })
+        }),
 
     }),
 });
@@ -127,5 +141,7 @@ export const {
     useGetAllQuotesQuery,
     useGetQuoteByIdQuery,
     useCreateQuoteMutation,
-    useGetSalesDashboardQuery
+    useGetSalesDashboardQuery,
+    useUpdateQuoteStatusMutation,
+    useUpdateClientTrustedMutation
 } = SalesAPI;

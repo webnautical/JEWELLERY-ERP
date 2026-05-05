@@ -1,13 +1,19 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { authUser } from "../../helper/Utility";
+import { authUser, timeAgo } from "../../helper/Utility";
 import { appMenu } from "../../routes/routesConfig";
 import { useDispatch, useSelector } from "react-redux";
 import { setLanguage } from "../../api/globalSlice";
 import { useTranslation } from "../../helper/useTranslation";
-import { notificationData } from "../../helper/Constant";
+import { useGetNotificationsQuery } from "../../api/CommonAPI";
 
 export const Header = () => {
+  const { data: notificationData, isLoading } = useGetNotificationsQuery(undefined, {
+    pollingInterval: 10000,
+  });
+  console.log("notificationData", notificationData)
+  const notificationList = notificationData?.data
+
   const authUserInfo = authUser();
   const authRole = authUserInfo?.role;
   const { t } = useTranslation();
@@ -26,8 +32,7 @@ export const Header = () => {
   const notifyRef = useRef(null);
   const userRef = useRef(null);
   const inputRef = useRef(null);
-  const notificationList = notificationData?.notifications
-  const SHOW_NOTIFICATION_LIMIT = 5
+
   useEffect(() => {
     function handleClickOutside(event) {
       if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
@@ -283,34 +288,36 @@ export const Header = () => {
 
         {/* NOTIFICATIONS */}
         <div className="notify-wrapper" ref={notifyRef}>
-          <i
-            className="bi bi-bell-fill notify-icon"
-            onClick={() => {
-              setNotifyOpen(!notifyOpen);
-              setUserOpen(false);
-            }}
-          ></i>
+          <span className="notify-bell" onClick={() => { setNotifyOpen(!notifyOpen); setUserOpen(false); }}>
+            <i className="bi bi-bell-fill notify-icon"></i>
+            {notificationData?.unreadCount > 0 && (
+              <span className="notify-badge">
+                {notificationData.unreadCount > 99 ? "99+" : notificationData.unreadCount}
+              </span>
+            )}
+          </span>
 
           <div className={`notify-dropdown ${notifyOpen ? "show" : ""}`}>
             <div className="notify-header">
               <h6>Notifications</h6>
-              <span>{notificationData.unread} New</span>
+              <span>{notificationData?.unreadCount} New</span>
             </div>
             <div className="notify-list">
-              {notificationList?.slice(0, SHOW_NOTIFICATION_LIMIT).map((item) => (
+              {notificationList?.map((item) => (
                 <div key={item.id} className={`notify-item ${!item.is_read ? "unread" : ""}`}>
                   <div className="notify-content">
-                    <p>{item.message}</p>
-                    <small>{item.time}</small>
+                    <p><strong>{item?.title}</strong></p>
+                    <p>{item?.message}</p>
+                    <small>{timeAgo(item?.created_at)}</small>
                   </div>
                 </div>
               ))}
             </div>
 
-            {notificationData.total > SHOW_NOTIFICATION_LIMIT && (
+            {notificationData?.totalRecords > 5 && (
               <div className="notify-footer text-center">
-                <Link to={'/notifications'} className="btn btn-sm btn-primary">
-                  View all {notificationData.total} notifications
+                <Link to={'/dataList/notifications'} className="btn btn-sm btn-primary">
+                  View all {notificationData?.totalRecords} notifications
                 </Link>
               </div>
             )}
