@@ -27,12 +27,22 @@ const PwdField = ({ label, name, show, onToggle, placeholder, value, onChange, o
                 onBlur={onBlur}
                 style={{ border: "none", flex: 1, outline: "none", boxShadow: "none" }}
             />
-            <span
-                onClick={onToggle}
-                style={{ padding: "0 12px", cursor: "pointer", fontSize: 15, color: "var(--g500)", flexShrink: 0 }}
-            >
-                {show ? "🙈" : "👁"}
-            </span>
+         <span
+  onClick={onToggle}
+  style={{
+    padding: "0 12px",
+    cursor: "pointer",
+    fontSize: 15,
+    color: "var(--g500)",
+    flexShrink: 0
+  }}
+>
+  {show ? (
+    <i className="bi bi-eye-slash"></i>
+  ) : (
+    <i className="bi bi-eye"></i>
+  )}
+</span>
         </div>
         {err && <div className="field-err">{err}</div>}
     </div>

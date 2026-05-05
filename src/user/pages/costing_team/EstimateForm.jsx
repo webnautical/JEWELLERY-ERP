@@ -323,7 +323,7 @@ const EstimateForm = () => {
           <div className="form-actions" style={{ marginTop: 0 }}>
             <button className="btn btn-outline" onClick={() => navigate("/estimate-requests")}>Cancel</button>
             <button className="btn btn-primary" onClick={handleSubmit} disabled={saving}>
-              {saving ? "Saving..." : "💾 Save Estimate"}
+              {saving ? "Saving..." : "Save Estimate"}
             </button>
           </div>
         </div>

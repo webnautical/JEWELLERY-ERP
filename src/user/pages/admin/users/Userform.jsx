@@ -151,7 +151,7 @@ const UserForm = () => {
             className="btn btn-outline"
             onClick={() => navigate("/users")}
           >
-            ← {t("Back to Users")}
+            {t("Back to Users")}
           </button>
         </div>
       </div>
@@ -161,7 +161,7 @@ const UserForm = () => {
 
         {!isEdit && (
           <div className="info-box" style={{ margin: "0 0 16px" }}>
-            ℹ️ {t("credentialsInfo")}
+             {t("credentialsInfo")}
           </div>
         )}
 

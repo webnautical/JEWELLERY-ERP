@@ -151,13 +151,7 @@ const Assets = () => {
             <div className="form-panel-title">
               {editId ? "Edit Asset" : "Add New Asset"}
             </div>
-            <button
-              className="btn btn-outline"
-              style={{ padding: "5px 12px", fontSize: 12 }}
-              onClick={handleCancel}
-            >
-              ✕ Cancel
-            </button>
+          
           </div>
 
           <div className="form-grid">
@@ -221,8 +215,8 @@ const Assets = () => {
               {saving
                 ? "Saving..."
                 : editId
-                  ? "💾 Update Asset"
-                  : "💾 Save Asset"}
+                  ? "Update Asset"
+                  : "Save Asset"}
             </button>
           </div>
         </div>
@@ -322,7 +316,7 @@ const Assets = () => {
                     </span>
                   </td>
                   <td>
-                    <div style={{ display: "flex", gap: 6 }}>
+                    <div style={{ display: "flex", gap: 6, justifyContent:"end" }}>
                       <button
                         className="btn-sm"
                         onClick={() => openEdit(asset)}

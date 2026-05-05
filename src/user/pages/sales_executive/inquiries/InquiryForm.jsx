@@ -246,7 +246,7 @@ const InquiryForm = () => {
         <div className="form-actions">
           <button className="btn btn-outline" onClick={() => navigate("/inquiries")}>Cancel</button>
           <button className="btn btn-primary" onClick={handleSubmit} disabled={saving}>
-            {saving ? "Saving..." : isEdit ? "💾 Update Inquiry" : "💾 Save Inquiry"}
+            {saving ? "Saving..." : isEdit ? "Update Inquiry" : "Save Inquiry"}
           </button>
         </div>
       </div>
