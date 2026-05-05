@@ -631,8 +631,8 @@ const BOMForm = () => {
               {saving || revising
                 ? "Saving..."
                 : isViewMode
-                  ? "💾 Save Revision"
-                  : "💾 Create BOM"}
+                  ? "Save Revision"
+                  : "Create BOM"}
             </button>
           </div>
         </div>

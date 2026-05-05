@@ -110,7 +110,7 @@ const Profile = () => {
                 </div>
                 <div className="btn-row">
                     <button className="btn btn-outline" onClick={() => navigate(-1)}>
-                        ← {t("Back to Users")}
+                        {t("Back to Users")}
                     </button>
                 </div>
             </div>

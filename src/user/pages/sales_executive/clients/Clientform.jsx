@@ -153,7 +153,7 @@ const ClientForm = () => {
         <div className="form-actions">
           <button className="btn btn-outline" onClick={() => navigate("/clients")}>Cancel</button>
           <button className="btn btn-primary" onClick={handleSubmit} disabled={saving}>
-            {saving ? "Saving..." : isEdit ? "💾 Update Client" : "💾 Save Client"}
+            {saving ? "Saving..." : isEdit ? "Update Client" : "Save Client"}
           </button>
         </div>
       </div>

@@ -144,7 +144,7 @@ export const Header = () => {
         className="top_heading d-lg-block d-none text-capitalize"
         style={{ fontSize: "20px", margin: "0px", color: "white" }}
       >
-        {t(dashboardTitleMap[authRole])}
+        {t(dashboardTitleMap[authRole])} 11
       </h1>
 
       <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
