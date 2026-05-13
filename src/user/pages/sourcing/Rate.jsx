@@ -1,23 +1,39 @@
 import React, { useState } from "react";
-import { useCreateRateMutation, useGetAllAssetsQuery } from "../../../api/RatesAPI";
+import { useCreateRateMutation } from "../../../api/RatesAPI";
 import { showSuccess, showError } from "../../../helper/Utility";
-import { useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import LoadingBTN from "../../../components/LoadingBTN";
 
-const INIT_FORM = { assetId: "", rate: "", rateDate: new Date().toISOString().split("T")[0] };
-const INIT_ERRS = { assetId: "", rate: "" };
+const INIT_FORM = {
+    materialName: "",
+    unit: "",
+    rate: "",
+    rateDate: new Date().toISOString().split("T")[0]
+};
+
+const INIT_ERRS = {
+    materialName: "",
+    unit: "",
+    rate: ""
+};
+const UNITS = ["gram", "carat", "piece"];
 
 const Rate = () => {
-    const [form, setForm] = useState(INIT_FORM);
+    const locationData = useLocation()
+    const editData = locationData?.state
+    const [form, setForm] = useState({
+        materialName: editData?.material_name || "",
+        unit: editData?.unit || "",
+        rate: editData?.current_rate || "",
+        rateDate: new Date().toISOString().split("T")[0]
+    });
     const [errs, setErrs] = useState(INIT_ERRS);
     const navigate = useNavigate()
-    const { data: assetsData } = useGetAllAssetsQuery({ status: "active" });
     const [createRate, { isLoading: saving }] = useCreateRateMutation();
 
-    const assets = assetsData?.data || [];
-
     const validate = (name, value) => {
-        if (name === "assetId") return !value ? "Please select a material." : "";
+        if (name === "materialName") return !value?.trim() ? "Please enter material name." : "";
+        if (name === "unit") return !value ? "Please select a unit." : "";
         if (name === "rate") return !value ? "Rate is required."
             : isNaN(value) || Number(value) <= 0 ? "Enter a valid rate." : "";
         return "";
@@ -36,7 +52,8 @@ const Rate = () => {
 
     const validateAll = () => {
         const next = {
-            assetId: validate("assetId", form.assetId),
+            materialName: validate("materialName", form.materialName),
+            unit: validate("unit", form.unit),
             rate: validate("rate", form.rate),
         };
         setErrs(next);
@@ -47,14 +64,20 @@ const Rate = () => {
         if (!validateAll()) return;
         try {
             await createRate({
-                assetId: parseInt(form.assetId),
+                materialName: form.materialName.trim(),
+                unit: form.unit,
                 rate: parseFloat(form.rate),
                 rateDate: form.rateDate,
             }).unwrap();
             showSuccess("Rate saved successfully.");
-            setForm({ assetId: "", rate: "", rateDate: new Date().toISOString().split("T")[0] });
+            setForm({
+                materialName: "",
+                unit: "",
+                rate: "",
+                rateDate: new Date().toISOString().split("T")[0]
+            });
             setErrs(INIT_ERRS);
-            navigate('/rates-dashboard')
+            navigate('/assets');
         } catch (err) {
             showError(err?.data?.message || "Something went wrong.");
         }
@@ -80,22 +103,37 @@ const Rate = () => {
                 <div className="form-grid">
 
                     <div className="form-grp">
-                        <label className="form-lbl">Material *</label>
+                        <label className="form-lbl">Material Name *</label>
+                        <input
+                            className={`form-inp ${errs.materialName ? "inp-error" : ""}`}
+                            name="materialName"
+                            placeholder="e.g. Gold, Diamond, Silver"
+                            value={form.materialName}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                        />
+                        {errs.materialName && (
+                            <div className="field-err">{errs.materialName}</div>
+                        )}
+                    </div>
+
+                    <div className="form-grp">
+                        <label className="form-lbl">Unit *</label>
                         <select
-                            className={`form-select ${errs.assetId ? "inp-error" : ""}`}
-                            name="assetId"
-                            value={form.assetId}
+                            className={`form-select ${errs.unit ? "inp-error" : ""}`}
+                            name="unit"
+                            value={form.unit}
                             onChange={handleChange}
                             onBlur={handleBlur}
                         >
-                            <option value="">Select material...</option>
-                            {assets.map((a) => (
-                                <option key={a.id} value={a.id}>
-                                    {a.material_name} {a.grade} / {a.unit}
+                            <option value="">Select unit...</option>
+                            {UNITS.map((u) => (
+                                <option key={u} value={u}>
+                                    {u.charAt(0).toUpperCase() + u.slice(1)}
                                 </option>
                             ))}
                         </select>
-                        {errs.assetId && <div className="field-err">{errs.assetId}</div>}
+                        {errs.unit && <div className="field-err">{errs.unit}</div>}
                     </div>
 
                     <div className="form-grp">
@@ -127,6 +165,9 @@ const Rate = () => {
                 </div>
 
                 <div className="form-actions">
+                    <Link to={'/assets'} className="btn btn-primary">
+                        Cancel
+                    </Link>
                     {
                         saving ?
                             <LoadingBTN />

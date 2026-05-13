@@ -1,101 +1,28 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-// import { showSuccess, showError, imgBaseURL } from "../../../../helper/Utility";
 
 import {
   useCreateUpdateStyleMutation,
   useGetStyleByIdQuery,
+  useGetStyleRequestsQuery,
 } from "../../../api/RdAPI";
 import { showSuccess, showError, imgBaseURL } from "../../../helper/Utility";
 import LoadingBTN from './../../../components/LoadingBTN';
-
-
-const METAL_TYPES = [
-  "Gold 18K",
-  "Gold 22K",
-  "Silver 925",
-  "Platinum",
-  "White Gold 18K",
-  "Rose Gold 18K",
-];
-const PLATING = ["Rhodium", "Gold", "Rose Gold", "Silver", "None"];
+import { MATERIAL_OPTIONS, PLATING_OPTIONS, STONE_OPTIONS } from "../../../helper/Constant";
 
 const INIT = {
   styleName: "",
-  metalType: "",
-  metalWeight: "",
+  material: "",
+  stone: "",
   plating: "",
   description: "",
-  stoneDetails: [{ type: "", qty: "", unit: "carats", amount: "" }],
-  cadDimensions: { length: "", width: "", surface_area: "" },
 };
 
 const INIT_ERRS = {
   styleName: "",
-  metalType: "",
-  metalWeight: "",
+  material: "",
+  stone: "",
 };
-
-// ── Stone detail row component ────────────────────────────────────────────────
-const StoneRow = ({ stone, idx, onChange, onRemove, showRemove }) => (
-  <div className="stone-row">
-    <div className="form-grp" style={{ flex: 2 }}>
-      {idx === 0 && <label className="form-lbl">Stone Type</label>}
-      <input
-        className="form-inp"
-        placeholder="e.g. Diamond"
-        value={stone.type}
-        onChange={(e) => onChange(idx, "type", e.target.value)}
-      />
-    </div>
-    <div className="form-grp" style={{ flex: 1 }}>
-      {idx === 0 && <label className="form-lbl">Qty</label>}
-      <input
-        className="form-inp"
-        type="number"
-        placeholder="1"
-        value={stone.qty}
-        onChange={(e) => onChange(idx, "qty", e.target.value)}
-      />
-    </div>
-    <div className="form-grp" style={{ flex: 1 }}>
-      {idx === 0 && <label className="form-lbl">Unit</label>}
-      <select
-        className="form-select"
-        value={stone.unit}
-        onChange={(e) => onChange(idx, "unit", e.target.value)}
-      >
-        <option value="carats">Carats</option>
-        <option value="pcs">Pcs</option>
-        <option value="grams">Grams</option>
-      </select>
-    </div>
-    <div className="form-grp" style={{ flex: 1 }}>
-      {idx === 0 && <label className="form-lbl">Amount</label>}
-      <input
-        className="form-inp"
-        type="number"
-        placeholder="0.5"
-        value={stone.amount}
-        onChange={(e) => onChange(idx, "amount", e.target.value)}
-      />
-    </div>
-    {showRemove && (
-      <button
-        type="button"
-        className="btn-sm-red"
-        style={{
-          alignSelf: idx === 0 ? "flex-end" : "center",
-          marginBottom: idx === 0 ? 0 : 0,
-          flexShrink: 0,
-        }}
-        onClick={() => onRemove(idx)}
-      >
-        ✕
-      </button>
-    )}
-  </div>
-);
 
 const StyleForm = () => {
   const navigate = useNavigate();
@@ -104,87 +31,74 @@ const StyleForm = () => {
 
   const [form, setForm] = useState(INIT);
   const [errs, setErrs] = useState(INIT_ERRS);
-  const [images, setImages] = useState([]); // new File objects
-  const [cadFiles, setCadFiles] = useState([]); // new File objects
-  const [imgPreview, setImgPreview] = useState([]); // {url, isExisting}
-  const [cadPreview, setCadPreview] = useState([]); // {name, isExisting}
+  const [images, setImages] = useState([]);
+  const [cadFiles, setCadFiles] = useState([]);
+  const [imgPreview, setImgPreview] = useState([]);
+  const [cadPreview, setCadPreview] = useState([]);
+  const [removedImages, setRemovedImages] = useState([]);
+  const [removedCadFiles, setRemovedCadFiles] = useState([]);
 
   const imgRef = useRef();
   const cadRef = useRef();
 
-  const [removedImages, setRemovedImages] = useState([]);
-  const [removedCadFiles, setRemovedCadFiles] = useState([]);
-
   const { data: styleData, isLoading: fetching } = useGetStyleByIdQuery(id, {
     skip: !isEdit,
   });
-  const [createUpdateStyle, { isLoading: saving }] =
-    useCreateUpdateStyleMutation();
+  const [createUpdateStyle, { isLoading: saving }] = useCreateUpdateStyleMutation();
 
-  // ── Prefill on edit ─────────────────────────────────────────────────────────
   useEffect(() => {
     if (styleData?.data) {
       const s = styleData.data;
       setForm({
         styleName: s.style_name || "",
-        metalType: s.metal_type || "",
-        metalWeight: s.metal_weight || "",
+        material: s.material || "",
+        stone: s.stone || "",
         plating: s.plating || "",
         description: s.description || "",
-        stoneDetails: s.stone_details?.length
-          ? s.stone_details
-          : [{ type: "", qty: "", unit: "carats", amount: "" }],
-        cadDimensions: s.cad_dimensions || {
-          length: "",
-          width: "",
-          surface_area: "",
-        },
       });
-      // existing images preview
       if (s.images?.length) {
         setImgPreview(
           s.images.map((img) => ({
             url: `${imgBaseURL()}/${img}`,
             name: img,
             isExisting: true,
-          })),
+          }))
         );
       }
-      // existing cad files preview
       if (s.cad_files?.length) {
-        // setCadPreview(
-        //   s.cad_files.map((f) => ({
-        //     name: f.split("/").pop(),
-        //     isExisting: true,
-        //   })),
-        // );
         setCadPreview(
           s.cad_files.map((f) => ({
             name: typeof f === "string" ? f.split("/").pop() : f,
-            originalPath: f, // full DB path — sent back to backend for removal
+            originalPath: f,
             isExisting: true,
-          })),
+          }))
         );
       }
     }
   }, [styleData]);
 
-  // ── Field helpers ────────────────────────────────────────────────────────────
+  // ── Validation ───────────────────────────────────────────────────────────────
   const validate = (name, value) => {
     switch (name) {
       case "styleName":
         return !value.trim() ? "Style name is required." : "";
-      case "metalType":
-        return !value ? "Metal type is required." : "";
-      case "metalWeight":
-        return !value
-          ? "Metal weight is required."
-          : isNaN(value)
-            ? "Must be a valid number."
-            : "";
+      case "material":
+        return !value ? "Material is required." : "";
+      case "stone":
+        return !value ? "Stone is required." : "";
       default:
         return "";
     }
+  };
+
+  const validateAll = () => {
+    const next = {
+      styleName: validate("styleName", form.styleName),
+      material: validate("material", form.material),
+      stone: validate("stone", form.stone),
+    };
+    setErrs(next);
+    return Object.values(next).every((e) => !e);
   };
 
   const handleChange = (e) => {
@@ -200,65 +114,33 @@ const StyleForm = () => {
       setErrs((p) => ({ ...p, [name]: validate(name, value) }));
   };
 
-  const handleDimChange = (e) => {
-    const { name, value } = e.target;
-    setForm((p) => ({
-      ...p,
-      cadDimensions: { ...p.cadDimensions, [name]: value },
-    }));
-  };
-
-  // ── Stone handlers ────────────────────────────────────────────────────────────
-  const handleStoneChange = (idx, field, value) => {
-    const updated = form.stoneDetails.map((s, i) =>
-      i === idx ? { ...s, [field]: value } : s,
-    );
-    setForm((p) => ({ ...p, stoneDetails: updated }));
-  };
-
-  const addStone = () =>
-    setForm((p) => ({
-      ...p,
-      stoneDetails: [
-        ...p.stoneDetails,
-        { type: "", qty: "", unit: "carats", amount: "" },
-      ],
-    }));
-  const removeStone = (idx) =>
-    setForm((p) => ({
-      ...p,
-      stoneDetails: p.stoneDetails.filter((_, i) => i !== idx),
-    }));
-
-  // ── Image handlers ────────────────────────────────────────────────────────────
+  // ── Image handlers ───────────────────────────────────────────────────────────
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     setImages((p) => [...p, ...files]);
-    const previews = files.map((f) => ({
-      url: URL.createObjectURL(f),
-      name: f.name,
-      isExisting: false,
-    }));
-    setImgPreview((p) => [...p, ...previews]);
+    setImgPreview((p) => [
+      ...p,
+      ...files.map((f) => ({
+        url: URL.createObjectURL(f),
+        name: f.name,
+        isExisting: false,
+      })),
+    ]);
     e.target.value = "";
   };
 
-  // AFTER
   const removeImage = (idx) => {
     const item = imgPreview[idx];
     if (item.isExisting) {
-      // track original path for removal — name holds the original DB path
       setRemovedImages((p) => [...p, item.name]);
     } else {
-      const newIdx = imgPreview
-        .slice(0, idx)
-        .filter((i) => !i.isExisting).length;
+      const newIdx = imgPreview.slice(0, idx).filter((i) => !i.isExisting).length;
       setImages((p) => p.filter((_, i) => i !== newIdx));
     }
     setImgPreview((p) => p.filter((_, i) => i !== idx));
   };
 
-  // ── CAD handlers ──────────────────────────────────────────────────────────────
+  // ── CAD handlers ─────────────────────────────────────────────────────────────
   const handleCadChange = (e) => {
     const files = Array.from(e.target.files);
     setCadFiles((p) => [...p, ...files]);
@@ -274,40 +156,23 @@ const StyleForm = () => {
     if (item.isExisting) {
       setRemovedCadFiles((p) => [...p, item.originalPath]);
     } else {
-      const newIdx = cadPreview
-        .slice(0, idx)
-        .filter((i) => !i.isExisting).length;
+      const newIdx = cadPreview.slice(0, idx).filter((i) => !i.isExisting).length;
       setCadFiles((p) => p.filter((_, i) => i !== newIdx));
     }
     setCadPreview((p) => p.filter((_, i) => i !== idx));
   };
 
-  // ── Submit ────────────────────────────────────────────────────────────────────
-  const validateAll = () => {
-    const next = {
-      styleName: validate("styleName", form.styleName),
-      metalType: validate("metalType", form.metalType),
-      metalWeight: validate("metalWeight", form.metalWeight),
-    };
-    setErrs(next);
-    return Object.values(next).every((e) => !e);
-  };
-
+  // ── Submit ───────────────────────────────────────────────────────────────────
   const handleSubmit = async () => {
     if (!validateAll()) return;
 
     const fd = new FormData();
     if (isEdit) fd.append("id", id);
     fd.append("styleName", form.styleName);
-    fd.append("metalType", form.metalType);
-    fd.append("metalWeight", form.metalWeight);
-    fd.append("plating", form.plating);
-    fd.append("description", form.description);
-    fd.append(
-      "stoneDetails",
-      JSON.stringify(form.stoneDetails.filter((s) => s.type)),
-    );
-    fd.append("cadDimensions", JSON.stringify(form.cadDimensions));
+    fd.append("material", form.material);
+    fd.append("stone", form.stone);
+    fd.append("platingThickness", form.plating);
+    fd.append("specialInstruction", form.description);
     if (isEdit && removedImages.length)
       fd.append("removedImages", JSON.stringify(removedImages));
     if (isEdit && removedCadFiles.length)
@@ -319,7 +184,7 @@ const StyleForm = () => {
       await createUpdateStyle(fd).unwrap();
       showSuccess(
         isEdit ? "Style updated successfully." : "Style created successfully.",
-        isEdit ? "Updated" : "Created",
+        isEdit ? "Updated" : "Created"
       );
       navigate("/styles");
     } catch (err) {
@@ -342,9 +207,7 @@ const StyleForm = () => {
       {/* PAGE HEADER */}
       <div className="pg-header">
         <div>
-          <div className="pg-title">
-            {isEdit ? "Edit Style" : "Add New Style"}
-          </div>
+          <div className="pg-title">{isEdit ? "Edit Style" : "Add New Style"}</div>
           <div className="pg-sub">
             {isEdit
               ? `Editing: ${form.styleName}`
@@ -352,10 +215,7 @@ const StyleForm = () => {
           </div>
         </div>
         <div className="btn-row">
-          <button
-            className="btn btn-outline"
-            onClick={() => navigate("/styles")}
-          >
+          <button className="btn btn-outline" onClick={() => navigate("/styles")}>
             ← Back to Styles
           </button>
         </div>
@@ -368,6 +228,7 @@ const StyleForm = () => {
         </div>
 
         <div className="form-grid">
+          {/* Style Name */}
           <div className="form-grp">
             <label className="form-lbl">Style Name *</label>
             <input
@@ -378,64 +239,64 @@ const StyleForm = () => {
               onChange={handleChange}
               onBlur={handleBlur}
             />
-            {errs.styleName && (
-              <div className="field-err">{errs.styleName}</div>
-            )}
+            {errs.styleName && <div className="field-err">{errs.styleName}</div>}
           </div>
 
+          {/* Material */}
           <div className="form-grp">
-            <label className="form-lbl">Metal Type *</label>
+            <label className="form-lbl">Material *</label>
             <select
-              className={`form-select ${errs.metalType ? "inp-error" : ""}`}
-              name="metalType"
-              value={form.metalType}
+              className={`form-select ${errs.material ? "inp-error" : ""}`}
+              name="material"
+              value={form.material}
               onChange={handleChange}
               onBlur={handleBlur}
             >
-              <option value="">Select metal...</option>
-              {METAL_TYPES.map((m) => (
+              <option value="">Select material</option>
+              {MATERIAL_OPTIONS.map((m) => (
                 <option key={m}>{m}</option>
               ))}
             </select>
-            {errs.metalType && (
-              <div className="field-err">{errs.metalType}</div>
-            )}
+            {errs.material && <div className="field-err">{errs.material}</div>}
           </div>
 
+          {/* Stone */}
           <div className="form-grp">
-            <label className="form-lbl">Metal Weight (grams) *</label>
-            <input
-              className={`form-inp ${errs.metalWeight ? "inp-error" : ""}`}
-              name="metalWeight"
-              type="number"
-              step="0.01"
-              placeholder="e.g. 4.2"
-              value={form.metalWeight}
+            <label className="form-lbl">Stone *</label>
+            <select
+              className={`form-select ${errs.stone ? "inp-error" : ""}`}
+              name="stone"
+              value={form.stone}
               onChange={handleChange}
               onBlur={handleBlur}
-            />
-            {errs.metalWeight && (
-              <div className="field-err">{errs.metalWeight}</div>
-            )}
+            >
+              <option value="">Select stone</option>
+              {STONE_OPTIONS.map((s) => (
+                <option key={s}>{s}</option>
+              ))}
+            </select>
+            {errs.stone && <div className="field-err">{errs.stone}</div>}
           </div>
 
+          {/* Plating */}
           <div className="form-grp">
-            <label className="form-lbl">Plating</label>
+            <label className="form-lbl">Plating Thickness</label>
             <select
               className="form-select"
               name="plating"
               value={form.plating}
               onChange={handleChange}
             >
-              <option value="">Select plating...</option>
-              {PLATING.map((p) => (
+              <option value="">Select plating</option>
+              {PLATING_OPTIONS.map((p) => (
                 <option key={p}>{p}</option>
               ))}
             </select>
           </div>
 
+          {/* Special Instruction */}
           <div className="form-grp" style={{ gridColumn: "1 / -1" }}>
-            <label className="form-lbl">Description</label>
+            <label className="form-lbl">Special Instruction</label>
             <textarea
               className="form-inp"
               name="description"
@@ -444,78 +305,6 @@ const StyleForm = () => {
               value={form.description}
               onChange={handleChange}
               style={{ resize: "vertical" }}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* ── STONE DETAILS ── */}
-      <div className="form-panel">
-        <div className="form-panel-header">
-          <div className="form-panel-title">Stone Details</div>
-          <button
-            type="button"
-            className="btn btn-outline"
-            style={{ padding: "5px 12px", fontSize: 12 }}
-            onClick={addStone}
-          >
-            ＋ Add Stone
-          </button>
-        </div>
-
-        {form.stoneDetails.map((stone, idx) => (
-          <StoneRow
-            key={idx}
-            stone={stone}
-            idx={idx}
-            onChange={handleStoneChange}
-            onRemove={removeStone}
-            showRemove={form.stoneDetails.length > 1}
-          />
-        ))}
-      </div>
-
-      {/* ── CAD DIMENSIONS ── */}
-      <div className="form-panel">
-        <div className="form-panel-header">
-          <div className="form-panel-title">CAD Dimensions</div>
-        </div>
-        <div
-          className="form-grid"
-          style={{ gridTemplateColumns: "repeat(3,1fr)" }}
-        >
-          <div className="form-grp">
-            <label className="form-lbl">Length (mm)</label>
-            <input
-              className="form-inp"
-              name="length"
-              type="number"
-              placeholder="20"
-              value={form.cadDimensions.length}
-              onChange={handleDimChange}
-            />
-          </div>
-          <div className="form-grp">
-            <label className="form-lbl">Width (mm)</label>
-            <input
-              className="form-inp"
-              name="width"
-              type="number"
-              placeholder="18"
-              value={form.cadDimensions.width}
-              onChange={handleDimChange}
-            />
-          </div>
-          <div className="form-grp">
-            <label className="form-lbl">Surface Area (cm²)</label>
-            <input
-              className="form-inp"
-              name="surface_area"
-              type="number"
-              step="0.01"
-              placeholder="8.4"
-              value={form.cadDimensions.surface_area}
-              onChange={handleDimChange}
             />
           </div>
         </div>
@@ -555,42 +344,22 @@ const StyleForm = () => {
                 >
                   ✕
                 </button>
-                {img.isExisting && (
-                  <div className="img-existing-tag">Saved</div>
-                )}
+                {img.isExisting && <div className="img-existing-tag">Saved</div>}
               </div>
             ))}
           </div>
         ) : (
-          <div
-            className="upload-placeholder"
-            onClick={() => imgRef.current.click()}
-          >
+          <div className="upload-placeholder" onClick={() => imgRef.current.click()}>
             <div style={{ fontSize: 28, marginBottom: 6 }}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="50"
-                height="50"
-                viewBox="0 0 512 512"
-              >
+              <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 512 512">
                 <g>
-                  <path
-                    d="M347.92 260.66q-7.85 34.13-15.68 68.2c-1.93 8.45-3.7 16.93-5.66 25.37-4.26 18.34-19.22 32.13-38.11 32.91-21.76.89-43.62.91-65.38 0-19-.83-33.78-15.33-37.88-34-6.55-29.72-13.46-59.37-20.24-89a37.88 37.88 0 0 0-1.49-4.11c-10.89 0-21.77-.16-32.65 0-13 .25-23.19-4.3-28.63-16.56-5.56-12.53-2.87-23.86 6.36-33.79l93.17-100.24c10.91-11.74 21.77-23.51 32.72-35.21 13.14-14 29.93-14.2 43-.14q62.81 67.39 125.43 135c11.23 12.11 12.87 26.92 4.54 38.9-5.62 8.08-13.58 11.9-23.34 12-11.57.11-23.13.13-34.7.19a8.91 8.91 0 0 0-1.46.48zm37.14-29.18L255.1 91.9 129 229.51l.79 1.83c13.53 0 27.05-.16 40.58 0 13.71.2 17 3.11 20.06 16.35q11.22 49.06 22.48 98.11c2.15 9.36 6.73 13.12 16.37 13.16q26.71.11 53.42 0c9.83 0 14.13-3.51 16.34-13.08 7.62-33.13 15.16-66.29 22.82-99.41 2.79-12.06 6.62-15 19-15 14.01-.01 28 .01 44.2.01z"
-                    fill="#d12026"
-                  />
-                  <path
-                    d="M256 448.37h-82.75c-43-.08-73.48-30.34-73.86-73.35-.07-8.45-.14-16.91 0-25.36.19-9.36 5.75-15.11 14.19-15.06 8.29.05 14 6.07 14.1 15.27.14 8.67 0 17.35 0 26 .19 24.85 17.64 43.7 42.42 43.91q85.74.71 171.5 0c24.77-.2 42.28-19 42.49-43.86.07-8.67-.09-17.35 0-26 .14-9.26 5.73-15.24 14-15.32s14.29 5.68 14.21 15c-.12 13.76.72 27.78-1.57 41.22-5.64 33.14-34.53 56.76-68.16 57.52h-2z"
-                    fill="#d12026"
-                  />
+                  <path d="M347.92 260.66q-7.85 34.13-15.68 68.2c-1.93 8.45-3.7 16.93-5.66 25.37-4.26 18.34-19.22 32.13-38.11 32.91-21.76.89-43.62.91-65.38 0-19-.83-33.78-15.33-37.88-34-6.55-29.72-13.46-59.37-20.24-89a37.88 37.88 0 0 0-1.49-4.11c-10.89 0-21.77-.16-32.65 0-13 .25-23.19-4.3-28.63-16.56-5.56-12.53-2.87-23.86 6.36-33.79l93.17-100.24c10.91-11.74 21.77-23.51 32.72-35.21 13.14-14 29.93-14.2 43-.14q62.81 67.39 125.43 135c11.23 12.11 12.87 26.92 4.54 38.9-5.62 8.08-13.58 11.9-23.34 12-11.57.11-23.13.13-34.7.19a8.91 8.91 0 0 0-1.46.48zm37.14-29.18L255.1 91.9 129 229.51l.79 1.83c13.53 0 27.05-.16 40.58 0 13.71.2 17 3.11 20.06 16.35q11.22 49.06 22.48 98.11c2.15 9.36 6.73 13.12 16.37 13.16q26.71.11 53.42 0c9.83 0 14.13-3.51 16.34-13.08 7.62-33.13 15.16-66.29 22.82-99.41 2.79-12.06 6.62-15 19-15 14.01-.01 28 .01 44.2.01z" fill="#d12026" />
+                  <path d="M256 448.37h-82.75c-43-.08-73.48-30.34-73.86-73.35-.07-8.45-.14-16.91 0-25.36.19-9.36 5.75-15.11 14.19-15.06 8.29.05 14 6.07 14.1 15.27.14 8.67 0 17.35 0 26 .19 24.85 17.64 43.7 42.42 43.91q85.74.71 171.5 0c24.77-.2 42.28-19 42.49-43.86.07-8.67-.09-17.35 0-26 .14-9.26 5.73-15.24 14-15.32s14.29 5.68 14.21 15c-.12 13.76.72 27.78-1.57 41.22-5.64 33.14-34.53 56.76-68.16 57.52h-2z" fill="#d12026" />
                 </g>
               </svg>
             </div>
-            <div style={{ fontSize: 13, color: "var(--g500)" }}>
-              Click to upload style images
-            </div>
-            <div style={{ fontSize: 11, color: "var(--g300)", marginTop: 4 }}>
-              JPG, PNG supported
-            </div>
+            <div style={{ fontSize: 13, color: "var(--g500)" }}>Click to upload style images</div>
+            <div style={{ fontSize: 11, color: "var(--g300)", marginTop: 4 }}>JPG, PNG supported</div>
           </div>
         )}
       </div>
@@ -611,7 +380,7 @@ const StyleForm = () => {
         <input
           ref={cadRef}
           type="file"
-          accept=".dwg,.dxf,.stl,.obj,.step,.stp"
+          accept=".dwg,.dxf,.stl,.obj,.step,.stp,.jcd,.3dm"
           multiple
           style={{ display: "none" }}
           onChange={handleCadChange}
@@ -621,57 +390,31 @@ const StyleForm = () => {
           <div className="cad-file-list">
             {cadPreview.map((f, idx) => (
               <div key={idx} className="cad-file-item">
-                <span style={{ fontSize: 18 }}></span>
+                <span style={{ fontSize: 18 }}>📄</span>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 12.5, fontWeight: 500 }}>
-                    {f.name}
-                  </div>
+                  <div style={{ fontSize: 12.5, fontWeight: 500 }}>{f.name}</div>
                   {f.isExisting && (
-                    <div style={{ fontSize: 10.5, color: "var(--g500)" }}>
-                      Existing file
-                    </div>
+                    <div style={{ fontSize: 10.5, color: "var(--g500)" }}>Existing file</div>
                   )}
                 </div>
-                <button
-                  type="button"
-                  className="btn-sm-red"
-                  onClick={() => removeCad(idx)}
-                >
+                <button type="button" className="btn-sm-red" onClick={() => removeCad(idx)}>
                   Remove
                 </button>
               </div>
             ))}
           </div>
         ) : (
-          <div
-            className="upload-placeholder"
-            onClick={() => cadRef.current.click()}
-          >
+          <div className="upload-placeholder" onClick={() => cadRef.current.click()}>
             <div style={{ fontSize: 28, marginBottom: 6 }}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="50"
-                height="50"
-                viewBox="0 0 512 512"
-              >
+              <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 512 512">
                 <g>
-                  <path
-                    d="M347.92 260.66q-7.85 34.13-15.68 68.2c-1.93 8.45-3.7 16.93-5.66 25.37-4.26 18.34-19.22 32.13-38.11 32.91-21.76.89-43.62.91-65.38 0-19-.83-33.78-15.33-37.88-34-6.55-29.72-13.46-59.37-20.24-89a37.88 37.88 0 0 0-1.49-4.11c-10.89 0-21.77-.16-32.65 0-13 .25-23.19-4.3-28.63-16.56-5.56-12.53-2.87-23.86 6.36-33.79l93.17-100.24c10.91-11.74 21.77-23.51 32.72-35.21 13.14-14 29.93-14.2 43-.14q62.81 67.39 125.43 135c11.23 12.11 12.87 26.92 4.54 38.9-5.62 8.08-13.58 11.9-23.34 12-11.57.11-23.13.13-34.7.19a8.91 8.91 0 0 0-1.46.48zm37.14-29.18L255.1 91.9 129 229.51l.79 1.83c13.53 0 27.05-.16 40.58 0 13.71.2 17 3.11 20.06 16.35q11.22 49.06 22.48 98.11c2.15 9.36 6.73 13.12 16.37 13.16q26.71.11 53.42 0c9.83 0 14.13-3.51 16.34-13.08 7.62-33.13 15.16-66.29 22.82-99.41 2.79-12.06 6.62-15 19-15 14.01-.01 28 .01 44.2.01z"
-                    fill="#d12026"
-                  />
-                  <path
-                    d="M256 448.37h-82.75c-43-.08-73.48-30.34-73.86-73.35-.07-8.45-.14-16.91 0-25.36.19-9.36 5.75-15.11 14.19-15.06 8.29.05 14 6.07 14.1 15.27.14 8.67 0 17.35 0 26 .19 24.85 17.64 43.7 42.42 43.91q85.74.71 171.5 0c24.77-.2 42.28-19 42.49-43.86.07-8.67-.09-17.35 0-26 .14-9.26 5.73-15.24 14-15.32s14.29 5.68 14.21 15c-.12 13.76.72 27.78-1.57 41.22-5.64 33.14-34.53 56.76-68.16 57.52h-2z"
-                    fill="#d12026"
-                  />
+                  <path d="M347.92 260.66q-7.85 34.13-15.68 68.2c-1.93 8.45-3.7 16.93-5.66 25.37-4.26 18.34-19.22 32.13-38.11 32.91-21.76.89-43.62.91-65.38 0-19-.83-33.78-15.33-37.88-34-6.55-29.72-13.46-59.37-20.24-89a37.88 37.88 0 0 0-1.49-4.11c-10.89 0-21.77-.16-32.65 0-13 .25-23.19-4.3-28.63-16.56-5.56-12.53-2.87-23.86 6.36-33.79l93.17-100.24c10.91-11.74 21.77-23.51 32.72-35.21 13.14-14 29.93-14.2 43-.14q62.81 67.39 125.43 135c11.23 12.11 12.87 26.92 4.54 38.9-5.62 8.08-13.58 11.9-23.34 12-11.57.11-23.13.13-34.7.19a8.91 8.91 0 0 0-1.46.48zm37.14-29.18L255.1 91.9 129 229.51l.79 1.83c13.53 0 27.05-.16 40.58 0 13.71.2 17 3.11 20.06 16.35q11.22 49.06 22.48 98.11c2.15 9.36 6.73 13.12 16.37 13.16q26.71.11 53.42 0c9.83 0 14.13-3.51 16.34-13.08 7.62-33.13 15.16-66.29 22.82-99.41 2.79-12.06 6.62-15 19-15 14.01-.01 28 .01 44.2.01z" fill="#d12026" />
+                  <path d="M256 448.37h-82.75c-43-.08-73.48-30.34-73.86-73.35-.07-8.45-.14-16.91 0-25.36.19-9.36 5.75-15.11 14.19-15.06 8.29.05 14 6.07 14.1 15.27.14 8.67 0 17.35 0 26 .19 24.85 17.64 43.7 42.42 43.91q85.74.71 171.5 0c24.77-.2 42.28-19 42.49-43.86.07-8.67-.09-17.35 0-26 .14-9.26 5.73-15.24 14-15.32s14.29 5.68 14.21 15c-.12 13.76.72 27.78-1.57 41.22-5.64 33.14-34.53 56.76-68.16 57.52h-2z" fill="#d12026" />
                 </g>
               </svg>
             </div>
-            <div style={{ fontSize: 13, color: "var(--g500)" }}>
-              Click to upload CAD files
-            </div>
-            <div style={{ fontSize: 11, color: "var(--g300)", marginTop: 4 }}>
-              .dwg, .dxf, .stl, .step supported
-            </div>
+            <div style={{ fontSize: 13, color: "var(--g500)" }}>Click to upload CAD files</div>
+            <div style={{ fontSize: 11, color: "var(--g300)", marginTop: 4 }}>.dwg, .dxf, .stl, .step, .jcd, .3dm supported</div>
           </div>
         )}
       </div>
@@ -681,18 +424,13 @@ const StyleForm = () => {
         <button className="btn btn-outline" onClick={() => navigate("/styles")}>
           Cancel
         </button>
-        {
-          saving ?
-            <LoadingBTN />
-            :
-            <button
-              className="btn btn-primary"
-              onClick={handleSubmit}
-              disabled={saving}
-            >
-              {saving ? "Saving..." : isEdit ? "Update Style" : "Save Style"}
-            </button>
-        }
+        {saving ? (
+          <LoadingBTN />
+        ) : (
+          <button className="btn btn-primary" onClick={handleSubmit} disabled={saving}>
+            {isEdit ? "Update Style" : "Save Style"}
+          </button>
+        )}
       </div>
     </div>
   );

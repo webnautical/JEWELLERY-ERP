@@ -3,18 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useGetRDDashboardQuery } from "../../../api/RdAPI";
 import { formatDate } from "../../../helper/Utility";
 
-const ORIGIN_LABELS = {
-  in_house: "In-House",
-  client_design: "Client Design",
-  market_sample: "Market Sample",
-};
-
-const ORIGIN_BADGE = {
-  in_house: "rb-rd",
-  client_design: "rb-sales",
-  market_sample: "rb-sourcing",
-};
-
 const RDDashboard = () => {
   const navigate = useNavigate();
   const { data, isLoading } = useGetRDDashboardQuery();
@@ -71,7 +59,7 @@ const RDDashboard = () => {
           <div className="kpi-label">Total Styles</div>
           <div className="kpi-val">{overview.totalStyles}</div>
           <div className="kpi-note">
-            {overview.byOrigin.length} origin types
+            {overview?.byOrigin?.length} origin types
           </div>
           <div className="kpi-bar">
             <div
@@ -120,23 +108,6 @@ const RDDashboard = () => {
             />
           </div>
         </div>
-        {overview.byOrigin.map((o) => (
-          <div key={o.origin} className="kpi-card">
-            <div className="kpi-label">
-              {ORIGIN_LABELS[o.origin] || o.origin}
-            </div>
-            <div className="kpi-val">{o.count}</div>
-            <div className="kpi-note">By origin</div>
-            <div className="kpi-bar">
-              <div
-                className="kpi-bar-fill"
-                style={{
-                  width: `${Math.round((parseInt(o.count) / (overview.totalStyles || 1)) * 100)}%`,
-                }}
-              />
-            </div>
-          </div>
-        ))}
       </div>
 
       {/* TWO COL — Most Used + Alerts */}
@@ -305,8 +276,6 @@ const RDDashboard = () => {
             <tr>
               <th>#</th>
               <th>Style</th>
-              <th>Metal Type</th>
-              <th>Origin</th>
               <th>Status</th>
               <th>Created By</th>
               <th>Created</th>
@@ -328,14 +297,7 @@ const RDDashboard = () => {
                     <div className="td-main">{s.style_name}</div>
                     <div className="td-meta">{s.style_code}</div>
                   </td>
-                  <td className="td-meta">{s.metal_type || "—"}</td>
-                  <td>
-                    <span
-                      className={`role-badge ${ORIGIN_BADGE[s.origin] || "rb-vendor"}`}
-                    >
-                      {ORIGIN_LABELS[s.origin] || s.origin}
-                    </span>
-                  </td>
+                  
                   <td>
                     <span
                       className={`pill ${s.status === "active" ? "p-active" : "p-inactive"}`}

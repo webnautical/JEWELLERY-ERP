@@ -4,14 +4,15 @@ import { useGetAllClientsQuery, useUpdateClientTrustedMutation } from "../../../
 import { useTranslation } from "../../../../helper/useTranslation";
 import Pagination from "../../../../components/Pagination";
 import ToggleBTN from "../../../../components/ToggleBTN";
+import { PER_PAGE_ITEMS } from "../../../../helper/Constant";
 
 const Clients = () => {
   const [updateClientTrusted, { isLoading: isUpdating }] = useUpdateClientTrustedMutation();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(PER_PAGE_ITEMS)
   const [filterStatus, setFilterStatus] = useState("active");
-  const limit = 10;
 
   const { data, isLoading, refetch } = useGetAllClientsQuery({
     status: filterStatus,
@@ -41,9 +42,9 @@ const Clients = () => {
           <div className="pg-title">{t("Clients")}</div>
           <div className="pg-sub">{t('passwordChangedSuccess')}</div>
         </div>
-        <div className="btn-row">
+        {/* <div className="btn-row">
           <button className="btn btn-primary" onClick={() => navigate("/client-form")}>＋ {t("addClient")}</button>
-        </div>
+        </div> */}
       </div>
 
       {/* TABLE CARD */}
@@ -72,7 +73,7 @@ const Clients = () => {
               <th>{t("Address")}</th>
               <th>{t("Status")}</th>
               <th>{t("Is Trusted")}</th>
-              <th>{t("Actions")}</th>
+              {/* <th>{t("Actions")}</th> */}
             </tr>
           </thead>
           <tbody>
@@ -100,18 +101,19 @@ const Clients = () => {
                     onToggle={handleTrustedToggle}
                   />
                 </td>
-                <td>
+                {/* <td>
                   <div style={{ display: "flex", gap: 6 }}>
                     <button className="btn-sm" onClick={() => navigate(`/client-form?id=${client.id}`, { state: client })}>{t("edit")}</button>
                   </div>
-                </td>
+                </td> */}
               </tr>
             ))}
           </tbody>
         </table>
 
         {/* PAGINATION */}
-        <Pagination name={"clients"} length={clients.length} totalRecord={totalRecs} page={page} setPage={setPage} totalPages={totalPages} />
+        <Pagination name={"clients"} length={clients.length} totalRecord={totalRecs} page={page} setPage={setPage} totalPages={totalPages} limit={limit}
+          setLimit={setLimit} />
       </div>
     </div>
   );

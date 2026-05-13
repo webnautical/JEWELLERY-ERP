@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   useGetRateDashboardQuery,
   useCreateRateMutation,
+  useGetAllAssetsQuery,
 } from "../../../api/RatesAPI";
 import {
   showSuccess,
@@ -9,9 +10,7 @@ import {
   timeAgo,
   CURRENCY_SIGN,
 } from "../../../helper/Utility";
-
-
-
+import ImportExportBTN from "../../../helper/excel/ImportExportBTN";
 
 
 const fmt = (val) => (val != null ? `${CURRENCY_SIGN}${Number(val)}` : "—");
@@ -24,7 +23,7 @@ const SpotlightCard = ({ rate }) => {
         <div className="rsc-label">
           {rate.material_name} {rate.grade}
         </div>
-      
+
       </div>
       <div className="rsc-rate">{fmt(rate.rate)}</div>
       <div className="rsc-unit">per {rate.unit}</div>
@@ -88,13 +87,20 @@ const RateRow = ({ rate, idx, onSave, saving }) => {
 const SourcingDashboard = () => {
   const { data, isLoading, refetch } = useGetRateDashboardQuery();
   const [createRate, { isLoading: saving }] = useCreateRateMutation();
-
   const rates = data?.data?.rates || [];
   const history = data?.data?.history || [];
   const pending = data?.data?.pendingEstimatesCount ?? 0;
+  const spotlight = rates;
 
-  // top 4 for spotlight (first 4 active rates)
-  const spotlight = rates.slice(0, 4);
+  const { data: materialsData } = useGetAllAssetsQuery();
+
+  const materialsList = materialsData?.data || [];
+  const dataForExcel = materialsList?.map(item => ({
+    materialName: item?.material_name ?? "",
+    unit: item?.unit ?? "",
+    rate: parseFloat(item?.current_rate),
+    rateDate: item?.rate_date?.split("T")[0]
+  }))
 
   const handleSave = async (assetId, rate) => {
     try {
@@ -127,6 +133,15 @@ const SourcingDashboard = () => {
             materials.
           </div>
         </div>
+        <div className="btn-row">
+
+          <ImportExportBTN
+            data={dataForExcel}
+            fileName="materials"
+            // onImport={(formData) => importMaterials(formData).unwrap()}
+            displayKeys={['materialName']}
+          />
+        </div>
       </div>
 
       {/* IMPACT ALERT BANNER */}
@@ -144,54 +159,144 @@ const SourcingDashboard = () => {
       </div>
 
       {/* BOTTOM SECTION — table + history */}
-      <div className="rate-bottom-grid">
+      <div className="row">
         {/* LEFT — editable rates table */}
-        <div className="table-card" style={{ flex: 1 }}>
-          <div className="table-header">
-            <div className="table-title">Current Rates</div>
+
+        <div className="col-md-8">
+          <div className="table-card">
+            <div className="row">
+              <div className="col-12">
+                <div className="table-card">
+                  <div className="table-header">
+                    <div className="table-title">Current Rates</div>
+                  </div>
+
+                  <table className="erp-table">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Material</th>
+                        <th>Grade / Type</th>
+                        <th>Current Rate</th>
+                        <th>Unit</th>
+                        <th>Update</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rates.length === 0 ? (
+                        <tr>
+                          <td
+                            colSpan={6}
+                            style={{
+                              textAlign: "center",
+                              padding: 30,
+                              color: "var(--g500)",
+                            }}
+                          >
+                            No rates found.
+                          </td>
+                        </tr>
+                      ) : (
+                        rates.map((rate, idx) => (
+                          <RateRow
+                            key={rate.asset_id}
+                            rate={rate}
+                            idx={idx}
+                            onSave={handleSave}
+                            saving={saving}
+                          />
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           </div>
-          <table className="erp-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Material</th>
-                <th>Grade / Type</th>
-                <th>Current Rate</th>
-                <th>Unit</th>
-                <th>Update</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rates.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={6}
-                    style={{
-                      textAlign: "center",
-                      padding: 30,
-                      color: "var(--g500)",
-                    }}
-                  >
-                    No rates found.
-                  </td>
-                </tr>
-              ) : (
-                rates.map((rate, idx) => (
-                  <RateRow
-                    key={rate.asset_id}
-                    rate={rate}
-                    idx={idx}
-                    onSave={handleSave}
-                    saving={saving}
-                  />
-                ))
-              )}
-            </tbody>
-          </table>
+
+          <div className="col-12 mt-3">
+            <div className="table-card">
+              <div className="table-header">
+                <div className="table-title">Materials</div>
+              </div>
+              <table className="erp-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Material</th>
+                    <th>Grade / Type</th>
+                    <th>Unit</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {isLoading ? (
+                    <tr>
+                      <td
+                        colSpan={6}
+                        style={{
+                          textAlign: "center",
+                          padding: 30,
+                          color: "var(--g500)",
+                        }}
+                      >
+                        Loading...
+                      </td>
+                    </tr>
+                  ) : materialsList.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={6}
+                        style={{
+                          textAlign: "center",
+                          padding: 30,
+                          color: "var(--g500)",
+                        }}
+                      >
+                        No materials found.
+                      </td>
+                    </tr>
+                  ) : (
+                    materialsList.map((asset, idx) => (
+                      <tr key={asset.id}>
+                        <td style={{ color: "var(--g500)", fontSize: 11 }}>
+                          {idx + 1}
+                        </td>
+                        <td>
+                          <div style={{ fontWeight: 500 }}>{asset.material_name}</div>
+                        </td>
+                        <td style={{ color: "var(--g700)" }}>{asset.grade}</td>
+                        <td
+                          style={{
+                            color: "var(--g700)",
+                            textTransform: "capitalize",
+                          }}
+                        >
+                          {asset.unit}
+                        </td>
+                        {/* <td style={{ color: "var(--g700)" }}>{asset.current_rate ?? "N/A"}</td> */}
+                        <td>
+                          <span
+                            className={`pill ${asset.status === "active" ? "p-active" : "p-inactive"}`}
+                          >
+                            <span className="pdot" />
+                            {asset.status === "active" ? "Active" : "Inactive"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
         </div>
 
+
+
         {/* RIGHT — history + impact */}
-        <div className="rate-right-col">
+        <div className="col-md-4">
           {/* Rate Change History */}
           <div className="table-card">
             <div

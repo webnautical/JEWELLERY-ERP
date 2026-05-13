@@ -6,13 +6,65 @@ import { useDispatch, useSelector } from "react-redux";
 import { setLanguage } from "../../api/globalSlice";
 import { useTranslation } from "../../helper/useTranslation";
 import { useGetNotificationsQuery } from "../../api/CommonAPI";
-
+import { resetAllState } from "../../app/store";
+import { navigateByNotification } from "../../helper/navigateByNotification";
+import { toast } from "sonner";
 export const Header = () => {
   const { data: notificationData, isLoading } = useGetNotificationsQuery(undefined, {
     pollingInterval: 10000,
   });
-  console.log("notificationData", notificationData)
+
   const notificationList = notificationData?.data
+  const prevMaxIdRef = useRef(null);
+
+  useEffect(() => {
+    if (!notificationList || notificationList.length === 0) {
+      return;
+    }
+
+    const maxId = Math.max(...notificationList.map((n) => n.id));
+
+    if (prevMaxIdRef.current === null) {
+      console.log("FIRST LOAD — setting prevMaxIdRef to", maxId);
+      prevMaxIdRef.current = maxId;
+      return;
+    }
+
+    if (maxId > prevMaxIdRef.current) {
+      const newNotifications = notificationList.filter(
+        (n) => n.id > prevMaxIdRef.current
+      );
+      newNotifications.forEach((n) => {
+        toast.custom(() => (
+          <div style={{
+            display: "flex", alignItems: "flex-start", gap: 12,
+            background: "#fff", border: "0.5px solid #e5e7eb",
+            borderRadius: 12, padding: "14px 16px", width: 340,
+            boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
+          }}>
+            <div style={{
+              width: 36, height: 36, borderRadius: 8, flexShrink: 0,
+              background: "#E1F5EE", display: "flex",
+              alignItems: "center", justifyContent: "center",
+            }}>
+              <i className="bi-bell-fill" style={{ fontSize: 18, color: "#0F6E56" }} />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ margin: "0 0 2px", fontSize: 13, fontWeight: 500, color: "#111" }}>
+                {n.title || "New notification"}
+              </p>
+              <p style={{ margin: 0, fontSize: 12, color: "#6b7280", lineHeight: 1.5 }}>
+                {n.message}
+              </p>
+            </div>
+          </div>
+        ), { duration: 5000 });
+      });
+      prevMaxIdRef.current = maxId;
+    } else {
+      console.log("NO NEW NOTIFICATIONS — maxId did not increase");
+    }
+  }, [notificationData]);
 
   const authUserInfo = authUser();
   const authRole = authUserInfo?.role;
@@ -64,6 +116,7 @@ export const Header = () => {
 
   const handleLogout = () => {
     localStorage.clear();
+    dispatch(resetAllState());
   };
 
   const dashboardTitleMap = {
@@ -74,7 +127,6 @@ export const Header = () => {
     costing_team: 'costingDashboard',
   };
 
-  // Build flat list of searchable items filtered by role
   const getFilteredSuggestions = (searchQuery) => {
     const results = [];
     for (const section of appMenu) {
@@ -104,6 +156,11 @@ export const Header = () => {
     setOpen((prev) => !prev);
     if (open) setQuery("");
   };
+
+  const handleNotificationClick = (item) => {
+    navigateByNotification(item, navigate);
+    setNotifyOpen(false)
+  }
 
   const highlightMatch = (text, query) => {
     if (!query) return text;
@@ -304,7 +361,7 @@ export const Header = () => {
             </div>
             <div className="notify-list">
               {notificationList?.map((item) => (
-                <div key={item.id} className={`notify-item ${!item.is_read ? "unread" : ""}`}>
+                <div key={item.id} className={`notify-item ${!item.is_read ? "unread" : ""}`} onClick={() => handleNotificationClick(item)}>
                   <div className="notify-content">
                     <p><strong>{item?.title}</strong></p>
                     <p>{item?.message}</p>
@@ -316,7 +373,7 @@ export const Header = () => {
 
             {notificationData?.totalRecords > 5 && (
               <div className="notify-footer text-center">
-                <Link to={'/dataList/notifications'} className="btn btn-sm btn-primary">
+                <Link to={'/dataList/notifications'} onClick={()=>setNotifyOpen(false)} className="btn btn-sm btn-primary">
                   View all {notificationData?.totalRecords} notifications
                 </Link>
               </div>

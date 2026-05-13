@@ -38,6 +38,14 @@ export const RatesAPI = createApi({
             }),
             invalidatesTags: ['Rates'],
         }),
+        importMaterials: builder.mutation({
+            query: (body) => ({
+                url: 'sourcing/importMaterials',
+                method: 'POST',
+                body,
+            }),
+            invalidatesTags: ['Assets', 'Rates'],
+        }),
 
     }),
 });
@@ -47,4 +55,5 @@ export const {
     useGetAllAssetsQuery,
     useCreateUpdateAssetMutation,
     useCreateRateMutation,
+    useImportMaterialsMutation
 } = RatesAPI;

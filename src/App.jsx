@@ -10,6 +10,7 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import useNetworkStatus from "./hooks/useNetworkStatus";
 import NoInternet from "./errorPage/NoInternet";
 import PageNotFound from "./errorPage/PageNotFound";
+import { Toaster } from "sonner";
 
 function App() {
   useNetworkStatus();
@@ -58,6 +59,7 @@ function App() {
         <Route path="/no-internet" element={<UserLayout cmp={NoInternet} />} />
         <Route path="/*" element={<UserLayout cmp={PageNotFound} />} />
       </Routes>
+      <Toaster position="top-right" richColors />
     </>
   );
 }
