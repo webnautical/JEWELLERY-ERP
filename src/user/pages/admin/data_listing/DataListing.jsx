@@ -1,10 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useGetTableDataQuery } from "../../../../api/AdminAPI";
 import { formatLabel, showError } from "../../../../helper/Utility";
 import { useTranslation } from "../../../../helper/useTranslation";
 import { useLazyMarkAllNotificationsReadQuery, useLazyMarkNotificationReadQuery } from "../../../../api/CommonAPI";
 import LoadingBTN from './../../../../components/LoadingBTN';
+import { navigateByNotification } from "../../../../helper/navigateByNotification";
+import { HIDDEN_COLUMNS, PER_PAGE_ITEMS } from "../../../../helper/Constant";
+import RefreshBTN from "../../../../components/RefreshBTN";
+import Pagination from "../../../../components/Pagination";
+import ImportExportBTN from "../../../../helper/excel/ImportExportBTN";
 
 const DataListing = () => {
   const { t } = useTranslation();
@@ -12,7 +17,11 @@ const DataListing = () => {
   const tableName = params.page;
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
-  const limit = 10;
+  const [limit, setLimit] = useState(PER_PAGE_ITEMS)
+
+  useEffect(() => {
+    setPage(1)
+  }, [tableName])
   const [markRead] = useLazyMarkNotificationReadQuery();
   const [markAllRead, { isLoading: isMarkingAll }] = useLazyMarkAllNotificationsReadQuery();
   const { data, isLoading, refetch } = useGetTableDataQuery({ table: tableName, page, limit });
@@ -21,7 +30,10 @@ const DataListing = () => {
   const totalPages = data?.totalPages || 1;
   const totalRecords = data?.totalRecords ?? dataList.length;
 
-  const columns = dataList.length > 0 ? Object.keys(dataList[0]) : [];
+  const hiddenCols = HIDDEN_COLUMNS[tableName] || [];
+  const columns = dataList.length > 0
+    ? Object.keys(dataList[0]).filter((col) => !hiddenCols.includes(col))
+    : [];
 
   const actions = data?.actions || {};
   const hasAnyAction = Object.values(actions).some(Boolean);
@@ -77,8 +89,11 @@ const DataListing = () => {
   const handleRowClick = async (item) => {
     if (tableName == "notifications") {
       try {
-        await markRead(item.id).unwrap();
-        refetch()
+        if (!item?.is_read) {
+          await markRead(item.id).unwrap();
+          refetch()
+        }
+        navigateByNotification(item, navigate);
       } catch (err) {
         showError(err?.data?.message || "Something went wrong.");
       }
@@ -96,8 +111,6 @@ const DataListing = () => {
     }
   };
 
-  console.log("dataList", dataList)
-  console.log("tableName", tableName)
   return (
     <div className="page-wrapper">
       <div className="pg-header">
@@ -105,24 +118,25 @@ const DataListing = () => {
           <div className="pg-title"> {t(t(formatLabel(tableName)))}</div>
           <div className="pg-sub">{t('manageAll')} {t(formatLabel(tableName))} {t('records')}</div>
         </div>
-        <div>
+        <div className="btn-row">
+
           {
             tableName == "notifications" &&
             <>
-             { isMarkingAll ? <LoadingBTN className={"btn btn-primary mx-2"}/> :
-              <button className="btn btn-primary mx-2" onClick={handleMarkAllRead}>
-                Mark as all read
-              </button>}
+              {isMarkingAll ? <LoadingBTN className={"btn btn-primary mx-2"} /> :
+                <button className="btn btn-primary mx-2" onClick={handleMarkAllRead}>
+                  Mark as all read
+                </button>}
             </>
           }
-          <button type="button" className="btn btn-primary" onClick={() => refetch()}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 6 }}>
-              <polyline points="23 4 23 10 17 10" />
-              <polyline points="1 20 1 14 7 14" />
-              <path d="M3.51 9a9 9 0 0 1 14.36-3.36L23 10M1 14l5.13 4.36A9 9 0 0 0 20.49 15" />
-            </svg>
-            {t('refresh')}
-          </button>
+
+          <ImportExportBTN
+            data={dataList}
+            fileName={tableName}
+            isImport={false}
+          />
+
+          <RefreshBTN refetch={refetch} />
         </div>
       </div>
 
@@ -196,24 +210,8 @@ const DataListing = () => {
         </table>
 
         {/* PAGINATION */}
-        <div className="pagination">
-          <div className="page-info">
-            {t('showing')} {dataList.length} of {totalRecords}  {t(formatLabel(tableName))}
-          </div>
-          <div className="page-btns">
-            <button className="page-btn" disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
-              {t('prev')}
-            </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-              <button key={p} className={`page-btn ${p === page ? "active" : ""}`} onClick={() => setPage(p)}>
-                {p}
-              </button>
-            ))}
-            <button className="page-btn" disabled={page === totalPages} onClick={() => setPage((p) => p + 1)}>
-              {t('next')}
-            </button>
-          </div>
-        </div>
+        <Pagination name={tableName} length={dataList.length} totalRecord={totalRecords} page={page} setPage={setPage} totalPages={totalPages} limit={limit} setLimit={setLimit} />
+
       </div>
     </div>
   );

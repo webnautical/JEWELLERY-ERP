@@ -29,12 +29,10 @@ export const RdAPI = createApi({
                 url: 'style/createUpdateStyle',
                 method: 'POST',
                 body: formData,
-                // Don't set Content-Type — browser sets multipart/form-data with boundary
                 formData: true,
             }),
             invalidatesTags: ['Styles'],
         }),
-
         archiveStyle: builder.mutation({
             query: (id) => ({
                 url: 'style/archiveStyle',
@@ -46,6 +44,15 @@ export const RdAPI = createApi({
         getStyleRequests: builder.query({
             query: () => 'style/getStyleRequests',
         }),
+        styleImport: builder.mutation({
+            query: (formData) => ({
+                url: 'style/importStyles',
+                method: 'POST',
+                body: formData,
+                formData: true,
+            }),
+            invalidatesTags: ['Styles'],
+        }),
 
     }),
 });
@@ -56,5 +63,6 @@ export const {
     useCreateUpdateStyleMutation,
     useArchiveStyleMutation,
     useGetRDDashboardQuery,
-    useGetStyleRequestsQuery
+    useGetStyleRequestsQuery,
+    useStyleImportMutation
 } = RdAPI;

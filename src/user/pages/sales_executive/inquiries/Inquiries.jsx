@@ -2,24 +2,10 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGetAllInquiriesQuery } from "../../../../api/SalesAPI";
 import { CURRENCY_SIGN, formatDate } from "../../../../helper/Utility";
-
-const STATUS_OPTIONS = [
-  { value: "new",         label: "New",          cls: "rb-rd"         },
-  { value: "reviewing",   label: "Reviewing",    cls: "rb-sourcing"   },
-  { value: "quoted",      label: "Quoted",       cls: "rb-sales"      },
-  { value: "negotiating", label: "Negotiating",  cls: "rb-costing"    },
-  { value: "accepted",    label: "Accepted",     cls: "rb-qc"         },
-  { value: "rejected",    label: "Rejected",     cls: "rb-vendor"     },
-  { value: "on_hold",     label: "On Hold",      cls: "rb-production" },
-];
-
-const SOURCE_LABELS = {
-  phone:     "Phone",
-  email:     "Email",
-  whatsapp:  "WhatsApp",
-  walk_in:   "Walk-in",
-  reference: "Reference",
-};
+import { StyleHeaders } from "../../../../helper/excel/TemplateHeaders";
+import DownloadTemplate from "../../../../helper/excel/DownloadTemplate";
+import ImportExportBTN from "../../../../helper/excel/ImportExportBTN";
+import { SOURCE_OPTIONS, STATUS_OPTIONS } from "../../../../helper/Constant";
 
 const statusBadge = (status) => {
   const found = STATUS_OPTIONS.find((s) => s.value === status);
@@ -28,15 +14,15 @@ const statusBadge = (status) => {
 
 const Inquiries = () => {
   const navigate = useNavigate();
-  const [page,       setPage]       = useState(1);
+  const [page, setPage] = useState(1);
   const [filterStatus, setFilterStatus] = useState("");
   const limit = 10;
 
   const { data, isLoading } = useGetAllInquiriesQuery({ status: filterStatus, page, limit });
 
-  const inquiries  = data?.data         || [];
-  const totalPages = data?.totalPages   || 1;
-  const totalRecs  = data?.totalRecords ?? 0;
+  const inquiries = data?.data || [];
+  const totalPages = data?.totalPages || 1;
+  const totalRecs = data?.totalRecords ?? 0;
 
   return (
     <div className="page-wrapper">
@@ -48,6 +34,16 @@ const Inquiries = () => {
           <div className="pg-sub">Track all client inquiries from first contact to confirmed order.</div>
         </div>
         <div className="btn-row">
+          <DownloadTemplate
+            headers={StyleHeaders}
+            fileName="Styles_Template.xlsx"
+          />
+
+          <ImportExportBTN
+            data={inquiries}
+            fileName="inquiries"
+          />
+
           <button className="btn btn-primary" onClick={() => navigate("/inquiry-form")}>＋ New Inquiry</button>
         </div>
       </div>
@@ -107,7 +103,7 @@ const Inquiries = () => {
                   {inq.target_price ? `${CURRENCY_SIGN}${Number(inq.target_price).toLocaleString("en-IN")}` : "—"}
                 </td>
                 <td style={{ fontSize: 12, color: "var(--g500)" }}>
-                  {SOURCE_LABELS[inq.source] || inq.source || "—"}
+                  {SOURCE_OPTIONS[inq.source] || inq.source || "—"}
                 </td>
                 <td style={{ fontSize: 12, color: "var(--g500)" }}>{inq.assigned_to_name || "—"}</td>
                 <td>{statusBadge(inq.status)}</td>

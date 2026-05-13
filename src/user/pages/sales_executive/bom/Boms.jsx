@@ -389,7 +389,7 @@ const BOMs = () => {
                         View / Revise
                       </button>
                       {
-                        bom?.inquiry_status == "bom_in_progress" ?
+                        (bom?.inquiry_status == "bom_in_progress" ||  bom?.inquiry_status == null) ?
                         <button
                           className="btn-sm"
                           style={{

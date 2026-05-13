@@ -1,34 +1,23 @@
-import React, { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import React from "react";
 import {
     useGetStyleRequestsQuery,
 } from "../../../api/RdAPI";
 import {
-    imgBaseURL,
     formatDate,
 } from "../../../helper/Utility";
 import ImageGallery from "../../../components/ImageGallery";
-
+import RefreshBTN from "../../../components/RefreshBTN";
 
 const StyleRequest = () => {
-    const navigate = useNavigate();
-    const [search, setSearch] = useState("");
-    const [filterStatus, setFilterStatus] = useState("active");
-
-    const { data, isLoading, refetch } = useGetStyleRequestsQuery({
-        status: filterStatus,
-    });
+    const { data, isLoading, refetch } = useGetStyleRequestsQuery();
     const dataList = data?.data || [];
-
-
-    console.log("dataList", dataList)
-
     return (
         <div className="page-wrapper">
             <div className="pg-header">
                 <div>
                     <div className="pg-title">Requested Styles</div>
                 </div>
+                <RefreshBTN refetch={refetch} />
             </div>
 
             {/* TABLE CARD */}

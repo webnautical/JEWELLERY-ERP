@@ -139,12 +139,12 @@ export const appMenu = [
                 icon: "bi-gem",
                 hideInMenu: true,
             },
-            {
-                path: "/get-requested-style",
-                element: StyleRequest,
-                label: "Requested Style",
-                icon: "bi-gem",
-            },
+            // {
+            //     path: "/get-requested-style",
+            //     element: StyleRequest,
+            //     label: "Requested Style",
+            //     icon: "bi-gem",
+            // },
             {
                 path: "/dataList/:page",
                 navPath: "/dataList/notifications",
@@ -160,17 +160,12 @@ export const appMenu = [
         title: "Rates",
         icon: "bi-graph-up-arrow",
         roles: ["sourcing_team"],
+        type: "single",
         children: [
-            {
-                path: "/rates-dashboard",
-                element: RatesDashboard,
-                label: "Dashboard",
-                icon: "bi-graph-up-arrow",
-            },
             {
                 path: "/assets",
                 element: Assets,
-                label: "Assets",
+                label: "Materials",
                 icon: "bi-box-seam-fill",
             },
             {
@@ -178,6 +173,8 @@ export const appMenu = [
                 element: Rate,
                 label: "Add Rate",
                 icon: "bi-currency-exchange",
+                hideInMenu: true,
+
             },
             {
                 path: "/dataList/:page",
@@ -312,12 +309,26 @@ export const appMenu = [
                 hideInMenu: true,
             },
             {
+                path: "/inquiries",
+                element: Inquiries,
+                label: "Inquiries",
+                icon: "bi-chat-left-text-fill",
+            },
+            {
+                path: "/inquiry-form",
+                element: InquiryForm,
+                label: "Inquiry Form",
+                icon: "bi-chat-left-text",
+                hideInMenu: true,
+            },
+            {
                 path: "/dataList/:page",
                 navPath: "/dataList/notifications",
                 element: DataListing,
                 label: "Notifications",
                 icon: "bi-bell-fill",
             },
+
         ],
     },
 

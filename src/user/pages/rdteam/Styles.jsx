@@ -1,40 +1,50 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   useGetAllStylesQuery,
   useArchiveStyleMutation,
+  useStyleImportMutation,
 } from "../../../api/RdAPI";
 import {
   showConfirm,
   showSuccess,
   showError,
   imgBaseURL,
-  formatDate,
+  timeAgo,
 } from "../../../helper/Utility";
-
+import DownloadTemplate from "../../../helper/excel/DownloadTemplate";
+import { StyleHeaders } from "../../../helper/excel/TemplateHeaders";
+import ImportExportBTN from "../../../helper/excel/ImportExportBTN";
+import Pagination from "../../../components/Pagination";
+import { PER_PAGE_ITEMS } from "../../../helper/Constant";
+import RefreshBTN from "../../../components/RefreshBTN";
 
 const Styles = () => {
   const navigate = useNavigate();
-  const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("active");
+  const [limit, setLimit] = useState(PER_PAGE_ITEMS)
+  const [styleImport] = useStyleImportMutation();
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search)
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [search])
 
   const { data, isLoading, refetch } = useGetAllStylesQuery({
     status: filterStatus,
+    limit,
+    page,
+    search: debouncedSearch
   });
   const [archiveStyle] = useArchiveStyleMutation();
-
-  const allStyles = data?.data || [];
-
-  // client-side search on name
-  const styles = useMemo(() => {
-    if (!search.trim()) return allStyles;
-    const q = search.toLowerCase();
-    return allStyles.filter(
-      (s) =>
-        s.style_name?.toLowerCase().includes(q) ||
-        s.metal_type?.toLowerCase().includes(q),
-    );
-  }, [allStyles, search]);
+  const styles = data?.data || [];
+  const totalPages = data?.totalPages || 1;
+  const totalRecs = data?.totalRecords ?? 0;
 
   const handleArchive = async (style) => {
     const confirm = await showConfirm(
@@ -62,10 +72,19 @@ const Styles = () => {
           </div>
         </div>
         <div className="btn-row">
-          <button
-            className="btn btn-primary"
-            onClick={() => navigate("/styles/add")}
-          >
+          <DownloadTemplate
+            headers={StyleHeaders}
+            fileName="Styles_Template.xlsx"
+          />
+          <ImportExportBTN
+            data={styles}
+            fileName="styles"
+            onImport={(formData) => styleImport(formData).unwrap()}
+            displayKeys={['style_code', 'style_name']}
+          />
+          <RefreshBTN refetch={refetch} />
+
+          <button className="btn btn-primary" onClick={() => navigate("/styles/add")}>
             ＋ Add Style
           </button>
         </div>
@@ -90,7 +109,7 @@ const Styles = () => {
           <div className="table-filters">
             <input
               className="filter-inp"
-              placeholder="Search name, metal..."
+              placeholder="Search style name, material..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -114,11 +133,11 @@ const Styles = () => {
               <th>Image</th>
               <th>Style Code</th>
               <th>Style Name</th>
-              <th>Metal Type</th>
-              <th>Weight</th>
-              <th>Plating</th>
+              <th>Material</th>
+              <th>Stone</th>
+              <th>Plating Thickness</th>
               <th>Status</th>
-              <th>Created</th>
+              <th>Created at</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -178,21 +197,21 @@ const Styles = () => {
                     </td>
                     <td>
                       <div style={{ fontWeight: 500 }}>{style.style_name}</div>
-                      {style.description && (
+                      {style.special_instruction && (
                         <div className="td-meta">
-                          {style.description.slice(0, 45)}
-                          {style.description.length > 45 ? "…" : ""}
+                          {style.special_instruction.slice(0, 45)}
+                          {style.special_instruction.length > 45 ? "…" : ""}
                         </div>
                       )}
                     </td>
                     <td style={{ color: "var(--g700)" }}>
-                      {style.metal_type || "—"}
+                      {style.material || "—"}
                     </td>
                     <td style={{ color: "var(--g700)" }}>
-                      {style.metal_weight ? `${style.metal_weight}g` : "—"}
+                      {style.stone}
                     </td>
                     <td style={{ color: "var(--g700)" }}>
-                      {style.plating || "—"}
+                      {style.plating_thickness || "—"}
                     </td>
                     <td>
                       <span
@@ -203,7 +222,7 @@ const Styles = () => {
                       </span>
                     </td>
                     <td style={{ fontSize: 11.5, color: "var(--g500)" }}>
-                      {formatDate(style.created_at)}
+                      {timeAgo(style.created_at)}
                     </td>
                     <td>
                       <div style={{ display: "flex", gap: 6 }}>
@@ -230,9 +249,8 @@ const Styles = () => {
           </tbody>
         </table>
 
-        <div className="pagination">
-          <div className="page-info">Showing {styles.length} styles</div>
-        </div>
+        <Pagination name={"styles"} length={styles.length} totalRecord={totalRecs} page={page} setPage={setPage} totalPages={totalPages} limit={limit} setLimit={setLimit} />
+
       </div>
     </div>
   );
