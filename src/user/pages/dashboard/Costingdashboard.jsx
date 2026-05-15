@@ -28,9 +28,6 @@ const CostingDashboard = () => {
   const completedCount = parseInt(
     overview.byStatus.find((s) => s.request_status === "completed")?.count || 0,
   );
-  const pendingCount = parseInt(
-    overview.byStatus.find((s) => s.request_status === "pending")?.count || 0,
-  );
 
   return (
     <div className="page-wrapper">
