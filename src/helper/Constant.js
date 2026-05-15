@@ -7,6 +7,9 @@ export const ORIGIN_OPTIONS = [
     { value: "market_sample", label: "Market Sample" },
 ];
 
+export const UNITS = ["gram", "carat", "piece"];
+
+
 export const HIDDEN_COLUMNS = {
   notifications: ["user_id", "is_read", "type_id", "user_role"],
 };
@@ -58,6 +61,4 @@ export const PLATING_OPTIONS = [
   "5 micron",
   "No Plating",
 ];
-
-export const UNITS = ["grams", "carats", "pcs", "job", "cm2", "meters", "ml"];
 

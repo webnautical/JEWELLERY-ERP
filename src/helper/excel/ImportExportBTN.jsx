@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import * as XLSX from 'xlsx'
 import LoadingBTN from './../../components/LoadingBTN';
 
-const ImportExportBTN = ({ data = [], fileName = 'export', isImport = true, isExport = true, onImport, displayKeys = [] }) => {
+const ImportExportBTN = ({ data = [], importBtnName = null, exportBtnName = null, fileName = 'export', isImport = true, isExport = true, onImport, displayKeys = [],dropdownColumns = [] }) => {
   const [selectedFile, setSelectedFile] = useState(null)
   const [isDragOver, setIsDragOver] = useState(false)
   const fileInputRef = useRef(null)
@@ -36,11 +36,21 @@ const ImportExportBTN = ({ data = [], fileName = 'export', isImport = true, isEx
   const closeModal = () => bsModalRef.current?.hide()
 
   const handleExport = () => {
-    const ws = XLSX.utils.json_to_sheet(data)
-    const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1')
-    XLSX.writeFile(wb, `${fileName}.xlsx`)
-  }
+    const workbook = XLSX.utils.book_new();
+
+    // --- Main Sheet ---
+    const ws = XLSX.utils.json_to_sheet(data);
+    XLSX.utils.book_append_sheet(workbook, ws, 'Sheet1');  // wb → workbook
+
+    // --- Extra Dropdown Sheets ---
+    dropdownColumns.forEach(({ sheetName: dropSheetName, values }) => {
+      if (!values || values.length === 0) return;
+      const dropSheet = XLSX.utils.aoa_to_sheet(values.map((v) => [v]));
+      XLSX.utils.book_append_sheet(workbook, dropSheet, dropSheetName);
+    });
+
+    XLSX.writeFile(workbook, `${fileName}.xlsx`);  // wb → workbook
+  };
 
   const setFile = (file) => {
     if (!file) return
@@ -95,8 +105,6 @@ const ImportExportBTN = ({ data = [], fileName = 'export', isImport = true, isEx
     return kb < 1024 ? `${kb.toFixed(1)} KB` : `${(bytes / 1048576).toFixed(2)} MB`
   }
 
-  console.log("importResult", importResult)
-
   return (
     <>
       {/* Buttons */}
@@ -107,8 +115,7 @@ const ImportExportBTN = ({ data = [], fileName = 'export', isImport = true, isEx
           style={{ background: '#217346', borderColor: '#217346' }}
           onClick={openModal}
         >
-          <i className="bi bi-file-earmark-excel"></i>
-          Import Excel
+          <i className="bi bi-file-earmark-excel"></i>{importBtnName ? importBtnName : "Import Excel"}
         </button>
       }
 
@@ -119,8 +126,7 @@ const ImportExportBTN = ({ data = [], fileName = 'export', isImport = true, isEx
           style={{ background: '#1D6F42', borderColor: '#1D6F42' }}
           onClick={handleExport}
         >
-          <i className="bi bi-file-earmark-excel"></i>
-          Export Excel
+          <i className="bi bi-file-earmark-excel"></i> {exportBtnName ? exportBtnName : "Export Excel"}
         </button>
       }
 

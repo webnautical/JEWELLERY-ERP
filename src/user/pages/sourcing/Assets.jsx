@@ -9,6 +9,7 @@ import ImportExportBTN from "../../../helper/excel/ImportExportBTN";
 import DownloadTemplate from "../../../helper/excel/DownloadTemplate";
 import { AssetsHeaders } from "../../../helper/excel/TemplateHeaders";
 import { Link } from "react-router-dom";
+import { UNITS } from "../../../helper/Constant";
 
 const INIT_FORM = { materialName: "", grade: "", unit: "" };
 const INIT_ERRS = { materialName: "", grade: "", unit: "" };
@@ -23,12 +24,14 @@ const Assets = () => {
 
   const assets = data?.data || [];
 
-  const dataForExcel = assets?.map(item => ({
-    materialName: item?.material_name ?? "",
-    unit: item?.unit ?? "",
-    rate: parseFloat(item?.current_rate),
-    rateDate: item?.rate_date?.split("T")[0]
-  }))
+  const dataForExcel = assets.length > 0
+    ? assets.map(item => ({
+      materialName: item?.material_name ?? "",
+      unit: item?.unit ?? "",
+      rate: parseFloat(item?.current_rate),
+      rateDate: item?.rate_date?.split("T")[0]
+    }))
+    : [{ materialName: "", unit: "", rate: "", rateDate: "" }];
 
   return (
     <div className="page-wrapper">
@@ -45,6 +48,11 @@ const Assets = () => {
           <ImportExportBTN
             data={dataForExcel}
             fileName="materials"
+            dropdownColumns={[
+              { sheetName: 'Units', values: UNITS },
+            ]}
+
+            maxRows={200}
             onImport={(formData) => importMaterials(formData).unwrap()}
             displayKeys={['materialName']}
           />

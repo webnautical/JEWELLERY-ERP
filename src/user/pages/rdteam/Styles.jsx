@@ -16,7 +16,7 @@ import DownloadTemplate from "../../../helper/excel/DownloadTemplate";
 import { StyleHeaders } from "../../../helper/excel/TemplateHeaders";
 import ImportExportBTN from "../../../helper/excel/ImportExportBTN";
 import Pagination from "../../../components/Pagination";
-import { PER_PAGE_ITEMS } from "../../../helper/Constant";
+import { MATERIAL_OPTIONS, PER_PAGE_ITEMS, PLATING_OPTIONS, STONE_OPTIONS } from "../../../helper/Constant";
 import RefreshBTN from "../../../components/RefreshBTN";
 
 const Styles = () => {
@@ -75,6 +75,11 @@ const Styles = () => {
           <DownloadTemplate
             headers={StyleHeaders}
             fileName="Styles_Template.xlsx"
+            dropdownColumns={[
+              { sheetName: "Material", values: MATERIAL_OPTIONS },
+              { sheetName: "Plating Thickness", values: PLATING_OPTIONS }, 
+              { sheetName: "Stone", values: STONE_OPTIONS }, 
+            ]}
           />
           <ImportExportBTN
             data={styles}

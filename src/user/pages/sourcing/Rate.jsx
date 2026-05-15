@@ -3,6 +3,7 @@ import { useCreateRateMutation } from "../../../api/RatesAPI";
 import { showSuccess, showError } from "../../../helper/Utility";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import LoadingBTN from "../../../components/LoadingBTN";
+import { UNITS } from "../../../helper/Constant";
 
 const INIT_FORM = {
     materialName: "",
@@ -16,7 +17,6 @@ const INIT_ERRS = {
     unit: "",
     rate: ""
 };
-const UNITS = ["gram", "carat", "piece"];
 
 const Rate = () => {
     const locationData = useLocation()

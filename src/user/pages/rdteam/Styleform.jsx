@@ -4,7 +4,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   useCreateUpdateStyleMutation,
   useGetStyleByIdQuery,
-  useGetStyleRequestsQuery,
 } from "../../../api/RdAPI";
 import { showSuccess, showError, imgBaseURL } from "../../../helper/Utility";
 import LoadingBTN from './../../../components/LoadingBTN';

@@ -93,14 +93,16 @@ const SourcingDashboard = () => {
   const spotlight = rates;
 
   const { data: materialsData } = useGetAllAssetsQuery();
-
   const materialsList = materialsData?.data || [];
-  const dataForExcel = materialsList?.map(item => ({
-    materialName: item?.material_name ?? "",
-    unit: item?.unit ?? "",
-    rate: parseFloat(item?.current_rate),
-    rateDate: item?.rate_date?.split("T")[0]
-  }))
+  const dataForExcel = materialsList.length > 0
+    ? materialsList.map(item => ({
+      materialName: item?.material_name ?? "",
+      unit: item?.unit ?? "",
+      rate: parseFloat(item?.current_rate),
+      rateDate: item?.rate_date?.split("T")[0]
+    }))
+    : [{ materialName: "", unit: "", rate: "", rateDate: "" }];
+
 
   const handleSave = async (assetId, rate) => {
     try {
